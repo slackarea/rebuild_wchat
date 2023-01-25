@@ -1,0 +1,5 @@
+<div class="date-container">
+	<div class="date">
+		<span>{{data}}</span>
+	</div>
+</div>
