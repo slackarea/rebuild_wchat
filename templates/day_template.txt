@@ -1,5 +1,5 @@
 <div class="date-container">
 	<div class="date">
-		<span>{{data}}</span>
+        <span>{{day}}</span>
 	</div>
 </div>
