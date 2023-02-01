@@ -47,7 +47,7 @@ def ios_chat(user,data):
             sender = line3.split("]")[1].split(":")[0]
             line4 = line3[len(sender):]
             message = line4[5:-1]
-            message = message.replace(" \u200e", "" ).replace("\n", "")
+            message = message.replace(" \u200e", "" ).replace("\n", "<br>")
             position = 'received'
             if sender[1:] != user:
                 position = 'sent'
