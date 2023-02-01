@@ -5,6 +5,13 @@ from fpdf import FPDF
 import shutil
 import zipfile
 import hashlib
+import re as regex
+import pandas as pd
+import numpy as np
+import emoji
+from collections import Counter
+#import matplotlib.pyplot as plt
+#from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 
 #questa funzione servirà per estrarre il file zip contente la chat e ritorno l'hash del file zip
 def extract_chat():
@@ -111,7 +118,30 @@ def makeHTML(user,cleaned_data):
     i.close()
 
 
+def sentiment_analysis(cleaned_data,file_report):
+    df = pd.DataFrame(cleaned_data, columns=["Type","Date", 'Time', 'Author', 'Message'])
+    df['Date'] = pd.to_datetime(df['Date'])
+    file_report.cell(200, 10, txt = "Autori dei messaggi scambiati: "+str(df.Author.unique()),ln = 1, align = 'L')
+    file_report.cell(200, 10, txt = "Numero totale di messaggi "+str(df.shape[0]),ln = 1, align = 'L')  
+    file_report.cell(200,10, txt="Numero media scambiati "+str(df[df["Message"].str.contains('<allegato: ')].shape[0]),ln = 1, align = 'L')
 
+
+    def split_count(text):
+        emoji_list = []
+        data = regex.findall(r'\\X',text)
+        for word in data:
+            if any(char in emoji.EMOJI_DATA for char in word):
+                emoji_list.append(word)
+        return emoji_list
+    df['emoji'] = df["Message"].apply(split_count)
+    emojis = sum(df['emoji'].str.len())
+    
+    URLPATTERN = r'(https?://\S+)'
+    df['urlcount'] = df.Message.apply(lambda x: regex.findall(URLPATTERN, x)).str.len()
+    links = np.sum(df.urlcount)
+    
+    file_report.cell(200,10, txt="Numero emojis "+str(emojis),ln = 1, align = 'L')
+    file_report.cell(200,10, txt="Numero link scambiati "+str(links),ln = 1, align = 'L')
 
 
 #main
@@ -122,15 +152,16 @@ pdf.set_font("Arial", size = 15)
 
 hash=extract_chat()
 pdf.cell(200, 10, txt = "hash zip contente la chat estratta:"+str(hash),ln = 1, align = 'L')
-pdf.output("report.pdf", "F")
+
 cleaned_data=[]
 
 platform="ios"
 
 file_path = "chat.txt"
+
 with open(file_path, mode='r', encoding="utf8") as f:
     data = f.readlines()
-    f.close()
+
 
 user =data[0].split(":")[2].split("]")[1][1:]
     
@@ -140,5 +171,10 @@ else:
     cleaned_data=android_chat(user, data)
 
 makeHTML(user,cleaned_data)
+sentiment_analysis(cleaned_data, pdf)
+
+
+pdf.output("report.pdf", "F")
+pdf.close()
 
 
