@@ -10,6 +10,8 @@ import pandas as pd
 import numpy as np
 import emoji
 from collections import Counter
+import plotly.express as px
+
 #import matplotlib.pyplot as plt
 #from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 
@@ -142,6 +144,31 @@ def sentiment_analysis(cleaned_data,file_report):
     
     file_report.cell(200,10, txt="Numero emojis "+str(emojis),ln = 1, align = 'L')
     file_report.cell(200,10, txt="Numero link scambiati "+str(links),ln = 1, align = 'L')
+
+    
+    # questa parte è da rivedere con un dateset completo
+    media_messages_df = df[df["Message"].str.contains('<allegato: ')]
+    messages_df = df.drop(media_messages_df.index)
+    messages_df['Letter_Count'] = messages_df['Message'].apply(lambda s : len(s))
+    messages_df['Word_Count'] = messages_df['Message'].apply(lambda s : len(s.split(' ')))
+    messages_df["MessageCount"]=1
+
+    total_emojis_list = list(set([a for b in messages_df.emoji for a in b]))
+    total_emojis = len(total_emojis_list)
+
+    total_emojis_list = list([a for b in messages_df.emoji for a in b])
+    emoji_dict = dict(Counter(total_emojis_list))
+    emoji_dict = sorted(emoji_dict.items(), key=lambda x: x[1], reverse=True)
+    
+    for i in emoji_dict:
+        print(i)
+    
+    emoji_df = pd.DataFrame(emoji_dict, columns=['emoji', 'count'])
+    fig = px.pie(emoji_df, values='count', names='emoji')
+    fig.update_traces(textposition='inside', textinfo='percent+label')
+    fig.write_image("fig1.png")
+    file_report.image("fig1.png")
+    
 
 
 #main
