@@ -120,6 +120,88 @@ def makeHTML(user,cleaned_data):
     i.close()
 
 
+#questa funziona crea un indice con il collegamento a tutti i messaggi di un dato giorno
+def dayHTML(user,cleaned_data):    
+    dayPath="./day_by_day/"
+    
+    #utilizzato per capire quando chiudere la chat del giorno
+    message_date = ""
+    i=None
+
+    file_loader = FileSystemLoader("templates")
+    env = Environment(loader=file_loader)
+    start=env.get_template("start.txt")
+    end=env.get_template("end.txt")
+    day_template=env.get_template("day_template.txt")
+    message_template=env.get_template("message_template.txt")
+    media_template=env.get_template("media_template.txt")
+
+    if os.path.exists(dayPath):
+        shutil.rmtree(dayPath)
+
+    os.mkdir(dayPath)
+    shutil.copyfile("style.css","day_by_day/style.css")
+
+    indexHTML = open(dayPath+"index.html",mode='x', encoding="utf8")
+    indexHTML.write("<HTML><HEAD> Index Chat<br></HEAD> <BODY>")
+
+    message_date = cleaned_data[0][1]
+    print("##########"+dayPath+message_date)
+    i = open(dayPath+str(message_date).replace("/","-")+".html", mode='x', encoding="utf8")
+    indexHTML.write("<a href=\""+str(message_date).replace("/","-")+".html\">"+message_date+"</a><br>")
+    i.write(start.render(name=user))
+    i.write((day_template.render(day=message_date)))
+
+        
+    for m in cleaned_data:
+        mess = m[4]
+
+        if (m[0]=="sent"):
+            p="end"
+        else:
+            p="start"
+
+        
+        if m[1] != message_date:
+            message_date = m[1]
+            d=str(m[1]).replace("/","-")
+            i.write(end.render())
+            i.close()
+            i = open(dayPath+d+".html", mode='x', encoding="utf8")
+            indexHTML.write("<a href=\""+d+".html"+"\">"+m[1]+"</a><br>")
+            i.write(start.render(name=user))
+            i.write((day_template.render(day=m[1])))
+
+    
+          #posizione conterrà l'inizio della stringa "<allegato:"
+        position = m[4].find("<allegato:")
+        
+        if position>-1:
+            if(m[4].find(".jpg")>-1):
+                filename = m[4][position+11:len(m[4])-1]
+                mess =  "<a href=" + m[4][position+11:len(m[4])-1]+ " data-lightbox=" + m[4][position+11:len(m[4])-1]+ "  >" + "<img src=\""+m[4][position+11:len(m[4])-1]+"\">" +"</a>"
+    
+            elif(m[4].find(".opus") >-1 or m[4].find(".mp3") >-1):
+                mess = "<audio controls><source src="+ m[4][position+11:len(m[4])-1] +  " type='audio/ogg'>Your browser does not support the audio element.</audio>"
+            else:
+                mess = "<a href=\""+m[4][position+11:len(m[4])-1]+"\">"+m[4][position+11:len(m[4])-1]+"</a>"
+            i.write(media_template.render(position=p,type=m[0], message=mess,time=m[2][0:5]))
+            
+        else:
+            i.write(message_template.render(position=p,type=m[0], message=mess,time=m[2][0:5]))
+
+    i.write(end.render())
+    i.close()
+
+    indexHTML.write("</BODY></HTML>")
+    indexHTML.close()
+
+
+
+
+
+
+
 def sentiment_analysis(cleaned_data,file_report):
     df = pd.DataFrame(cleaned_data, columns=["Type","Date", 'Time', 'Author', 'Message'])
     df['Date'] = pd.to_datetime(df['Date'])
@@ -199,7 +281,7 @@ else:
 
 makeHTML(user,cleaned_data)
 sentiment_analysis(cleaned_data, pdf)
-
+dayHTML(user,cleaned_data)
 
 pdf.output("report.pdf", "F")
 pdf.close()
