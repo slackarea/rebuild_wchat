@@ -55,14 +55,50 @@ def ios_chat(user,data):
             lista.append(date)
         # else, assumption -> new line. Append new line to previous 'message'
         else:
-            new = cleaned_data[-1][-1] + " " + line
+            new = cleaned_data[-1][-1] + "<br>" + line
             cleaned_data[-1][-1] = new
 
     return cleaned_data
 
 
 def android_chat(user,data):
-    print("android")
+    
+    with open(file_path, mode='r', encoding="utf8") as f:
+        data = f.readlines()
+
+            
+    dataset = data [1:]
+    cleaned_data = []
+    lista = []
+
+    for line in dataset:
+        # Check, whether it is a new line or not
+        # If the following characters are in the line -> assumption it is NOT a new line
+        if '/' in line and ':' in line and ',' in line and '-' in line:
+            # grab the info and cut it out
+            date = line.split(",")[0]            
+            line2 = line[len(date)+1:]
+            time = line2.split("-")[0][:-1]
+            line3 = line2[len(time)+2:]
+            sender = line3.split(":")[0]
+            line4 = line3[len(sender)+2:]
+            message = line4
+            message = message.replace(" \u200e", "" ).replace("\n", "")
+            position = 'received'
+        
+            if sender[1:] != user:
+                position = 'sent'
+        
+            cleaned_data.append([position, date, time[1:], sender[1:], message])
+            lista.append(date)
+        # else, assumption -> new line. Append new line to previous 'message'
+        else:
+            new = cleaned_data[-1][-1] + "<br>" + line
+            cleaned_data[-1][-1] = new
+
+    return cleaned_data
+
+
 
 
 
@@ -100,21 +136,35 @@ def makeHTML(user,cleaned_data):
             i.write((day_template.render(day=m[1])))
         
         #posizione conterrà l'inizio della stringa "<allegato:"
-        position = m[4].find("<allegato:")
+        attacched=-1
+        position_ios = m[4].find("<allegato:")
+        position_android= m[4].find("(file allegato)")
         
-        if position>-1:
+        if position_ios >-1:
+            filename=m[4][position_ios+11:len(m[4])-1]
+            attacched=1
+        elif position_android > -1:
+                filename=m[4][0:position_android-1]
+                attacched=1
+
+        
+
+        if attacched>-1:
             if(m[4].find(".jpg")>-1):
-                filename = m[4][position+11:len(m[4])-1]
-                mess =  "<a href=" + m[4][position+11:len(m[4])-1]+ " data-lightbox=" + m[4][position+11:len(m[4])-1]+ "  >" + "<img src=\""+m[4][position+11:len(m[4])-1]+"\">" +"</a>"
+                #filename = m[4][position+11:len(m[4])-1]
+                mess =  "<a href=" + filename + " data-lightbox=" + filename + "  >" + "<img src=\""+ filename +"\">" +"</a>"
     
             elif(m[4].find(".opus") >-1 or m[4].find(".mp3") >-1):
-                mess = "<audio controls><source src="+ m[4][position+11:len(m[4])-1] +  " type='audio/ogg'>Your browser does not support the audio element.</audio>"
+                mess = "<audio controls><source src="+ filename +  " type='audio/ogg'>Your browser does not support the audio element.</audio>"
             else:
-                mess = "<a href=\""+m[4][position+11:len(m[4])-1]+"\">"+m[4][position+11:len(m[4])-1]+"</a>"
+                mess = "<a href=\""+ filename +"\">"+ filename+"</a>"
             i.write(media_template.render(position=p,type=m[0], message=mess,time=m[2][0:5]))
             
         else:
             i.write(message_template.render(position=p,type=m[0], message=mess,time=m[2][0:5]))
+
+
+              
 
     i.write(end.render())
     i.close()
@@ -146,7 +196,7 @@ def dayHTML(user,cleaned_data):
     indexHTML.write("<HTML><HEAD> Index Chat<br></HEAD> <BODY>")
 
     message_date = cleaned_data[0][1]
-    print("##########"+dayPath+message_date)
+    
     i = open(dayPath+str(message_date).replace("/","-")+".html", mode='x', encoding="utf8")
     indexHTML.write("<a href=\""+str(message_date).replace("/","-")+".html\">"+message_date+"</a><br>")
     i.write(start.render(name=user))
@@ -173,31 +223,41 @@ def dayHTML(user,cleaned_data):
             i.write((day_template.render(day=m[1])))
 
     
-          #posizione conterrà l'inizio della stringa "<allegato:"
-        position = m[4].find("<allegato:")
+        #posizione conterrà l'inizio della stringa "<allegato:"
+        attacched=-1
+        position_ios = m[4].find("<allegato:")
+        position_android= m[4].find("(file allegato)")
         
-        if position>-1:
+        if position_ios >-1:
+            filename=m[4][position_ios+11:len(m[4])-1]
+            attacched=1
+        elif position_android > -1:
+                filename=m[4][0:position_android-1]
+                attacched=1
+
+        
+
+        if attacched>-1:
             if(m[4].find(".jpg")>-1):
-                filename = m[4][position+11:len(m[4])-1]
-                mess =  "<a href=" + m[4][position+11:len(m[4])-1]+ " data-lightbox=" + m[4][position+11:len(m[4])-1]+ "  >" + "<img src=\""+m[4][position+11:len(m[4])-1]+"\">" +"</a>"
+                #filename = m[4][position+11:len(m[4])-1]
+                mess =  "<a href=" + filename + " data-lightbox=" + filename + "  >" + "<img src=\""+ filename +"\">" +"</a>"
     
             elif(m[4].find(".opus") >-1 or m[4].find(".mp3") >-1):
-                mess = "<audio controls><source src="+ m[4][position+11:len(m[4])-1] +  " type='audio/ogg'>Your browser does not support the audio element.</audio>"
+                mess = "<audio controls><source src="+ filename +  " type='audio/ogg'>Your browser does not support the audio element.</audio>"
             else:
-                mess = "<a href=\""+m[4][position+11:len(m[4])-1]+"\">"+m[4][position+11:len(m[4])-1]+"</a>"
+                mess = "<a href=\""+ filename +"\">"+ filename+"</a>"
             i.write(media_template.render(position=p,type=m[0], message=mess,time=m[2][0:5]))
             
         else:
             i.write(message_template.render(position=p,type=m[0], message=mess,time=m[2][0:5]))
 
+
+              
+
     i.write(end.render())
     i.close()
-
     indexHTML.write("</BODY></HTML>")
     indexHTML.close()
-
-
-
 
 
 
@@ -264,19 +324,22 @@ pdf.cell(200, 10, txt = "hash zip contente la chat estratta:"+str(hash),ln = 1, 
 
 cleaned_data=[]
 
-platform="ios"
+#platform="android"
+#file_path = "chat_android.txt"
 
+
+platform="ios"
 file_path = "chat.txt"
 
 with open(file_path, mode='r', encoding="utf8") as f:
     data = f.readlines()
 
 
-user =data[0].split(":")[2].split("]")[1][1:]
-    
-if(platform=="ios"):
+if(platform == "ios"):
+    user = data[0].split(":")[2].split("]")[1][1:]
     cleaned_data=ios_chat(user, data)
 else:
+    user="Pippo"  
     cleaned_data=android_chat(user, data)
 
 makeHTML(user,cleaned_data)
