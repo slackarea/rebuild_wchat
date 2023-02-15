@@ -272,7 +272,7 @@ def sentiment_analysis(cleaned_data,file_report):
 
     def split_count(text):
         emoji_list = []
-        data = regex.findall(r'\\X',text)
+        data = regex.findall(r'\X',text)
         for word in data:
             if any(char in emoji.EMOJI_DATA for char in word):
                 emoji_list.append(word)
