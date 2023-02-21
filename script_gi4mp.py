@@ -1,28 +1,34 @@
 import os
+import sys
 import datetime
 from jinja2 import Template, Environment, FileSystemLoader
 from fpdf import FPDF
 import shutil
 import zipfile
 import hashlib
-import re as regex
+import regex
 import pandas as pd
 import numpy as np
 import emoji
 from collections import Counter
 import plotly.express as px
+from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
+import matplotlib.pyplot as plt
 
-#import matplotlib.pyplot as plt
-#from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 
 #questa funzione servirà per estrarre il file zip contente la chat e ritorno l'hash del file zip
-def extract_chat():
+def extract_chat(name):
+
+    if os.path.exists("./chat"):
+        shutil.rmtree("./chat")
+
+
     md5_hash = hashlib.md5()
-    with open("prova.zip","rb") as f:
+    with open(name,"rb") as f:
     # Read and update hash in chunks of 4K
         for byte_block in iter(lambda: f.read(4096),b""):
             md5_hash.update(byte_block)
-    shutil.unpack_archive("prova.zip", "provazip")
+    shutil.unpack_archive(name, "./chat")
 
     return md5_hash.hexdigest()    
 
@@ -49,7 +55,7 @@ def ios_chat(user,data):
             message = line4[5:-1]
             message = message.replace(" \u200e", "" ).replace("\n", "<br>")
             position = 'received'
-            if sender[1:] != user:
+            if sender[1:] == user:
                 position = 'sent'
             cleaned_data.append([position, date, time[1:], sender[1:], message])
             lista.append(date)
@@ -63,10 +69,7 @@ def ios_chat(user,data):
 
 def android_chat(user,data):
     
-    with open(file_path, mode='r', encoding="utf8") as f:
-        data = f.readlines()
-
-            
+         
     dataset = data [1:]
     cleaned_data = []
     lista = []
@@ -86,7 +89,7 @@ def android_chat(user,data):
             message = message.replace(" \u200e", "" ).replace("\n", "")
             position = 'received'
         
-            if sender[1:] != user:
+            if sender[1:] == user:
                 position = 'sent'
         
             cleaned_data.append([position, date, time[1:], sender[1:], message])
@@ -104,9 +107,21 @@ def android_chat(user,data):
 
 
 def makeHTML(user,cleaned_data):
-    file_html_path = "index_wa.html"
+    
+    folder="./html/"
+    
+    if os.path.exists(folder):
+        shutil.rmtree(folder)
+
+    os.mkdir(folder)
+    shutil.copyfile("style.css","html/style.css")
+
+
+    file_html_path = folder+"index_wa.html"
+    
     if os.path.exists(file_html_path):
         os.remove(file_html_path) 
+    
     i = open(file_html_path, mode='x', encoding="utf8")
     file_loader = FileSystemLoader("templates")
    
@@ -147,17 +162,17 @@ def makeHTML(user,cleaned_data):
                 filename=m[4][0:position_android-1]
                 attacched=1
 
-        
+        mediaPath="../chat/"+os.listdir("./chat")[0]+"/"
 
         if attacched>-1:
             if(m[4].find(".jpg")>-1):
                 #filename = m[4][position+11:len(m[4])-1]
-                mess =  "<a href=" + filename + " data-lightbox=" + filename + "  >" + "<img src=\""+ filename +"\">" +"</a>"
+                mess =  "<a href=\"" + mediaPath+filename + "\" data-lightbox=\"" + mediaPath+filename + "\">" + "<img src=\""+ mediaPath+filename +"\">" +"</a>"
     
             elif(m[4].find(".opus") >-1 or m[4].find(".mp3") >-1):
-                mess = "<audio controls><source src="+ filename +  " type='audio/ogg'>Your browser does not support the audio element.</audio>"
+                mess = "<audio controls><source src=\""+ mediaPath+filename +  "\" type='audio/ogg'>Your browser does not support the audio element.</audio>"
             else:
-                mess = "<a href=\""+ filename +"\">"+ filename+"</a>"
+                mess = "<a href=\""+ mediaPath+filename +"\">"+ filename+"</a>"
             i.write(media_template.render(position=p,type=m[0], message=mess,time=m[2][0:5]))
             
         else:
@@ -235,17 +250,17 @@ def dayHTML(user,cleaned_data):
                 filename=m[4][0:position_android-1]
                 attacched=1
 
-        
+        mediaPath="../chat/"+os.listdir("./chat")[0]+"/"
 
         if attacched>-1:
             if(m[4].find(".jpg")>-1):
                 #filename = m[4][position+11:len(m[4])-1]
-                mess =  "<a href=" + filename + " data-lightbox=" + filename + "  >" + "<img src=\""+ filename +"\">" +"</a>"
+                mess =  "<a href=" + mediaPath+filename + " data-lightbox=" + mediaPath+filename + "  >" + "<img src=\""+ mediaPath+filename +"\">" +"</a>"
     
             elif(m[4].find(".opus") >-1 or m[4].find(".mp3") >-1):
-                mess = "<audio controls><source src="+ filename +  " type='audio/ogg'>Your browser does not support the audio element.</audio>"
+                mess = "<audio controls><source src=\""+ mediaPath+filename +  "\" type='audio/ogg'>Your browser does not support the audio element.</audio>"
             else:
-                mess = "<a href=\""+ filename +"\">"+ filename+"</a>"
+                mess = "<a href=\""+ mediaPath+filename +"\">"+ filename+"</a>"
             i.write(media_template.render(position=p,type=m[0], message=mess,time=m[2][0:5]))
             
         else:
@@ -288,7 +303,7 @@ def sentiment_analysis(cleaned_data,file_report):
     file_report.cell(200,10, txt="Numero link scambiati "+str(links),ln = 1, align = 'L')
 
     
-    # questa parte è da rivedere con un dateset completo
+   
     media_messages_df = df[df["Message"].str.contains('<allegato: ')]
     messages_df = df.drop(media_messages_df.index)
     messages_df['Letter_Count'] = messages_df['Message'].apply(lambda s : len(s))
@@ -302,51 +317,127 @@ def sentiment_analysis(cleaned_data,file_report):
     emoji_dict = dict(Counter(total_emojis_list))
     emoji_dict = sorted(emoji_dict.items(), key=lambda x: x[1], reverse=True)
     
-    for i in emoji_dict:
-        print(i)
+    #for i in emoji_dict:
+    #    print(i)
     
+    l = df.Author.unique()
+    for i in range(len(l)):
+       # Filtering out messages of particular user
+        req_df= messages_df[messages_df["Author"] == l[i]]
+        # req_df will contain messages of only one particular user
+        file_report.cell(200,10, txt=(f' - Stats of {l[i]} -'),ln = 1, align = 'L')
+        # shape will print number of rows which indirectly means the number of messages
+        file_report.cell(200,10, txt=(f'Messages Sent {req_df.shape[0]}'),ln = 1, align = 'L')
+        #Word_Count contains of total words in one message. Sum of all words/ Total Messages will yield words per message
+        words_per_message = (np.sum(req_df['Word_Count']))/req_df.shape[0]
+        file_report.cell(200,10, txt=(f'Average Words per message {words_per_message}'),ln = 1, align = 'L')
+        #media conists of media messages
+        media = media_messages_df[media_messages_df['Author'] == l[i]].shape[0]
+        file_report.cell(200,10, txt=(f'Media Messages Sent {media}'),ln = 1, align = 'L')
+        # emojis conists of total emojis
+        emojis = sum(req_df['emoji'].str.len())
+        file_report.cell(200,10, txt=(f'Emojis Sent {emojis}'),ln = 1, align = 'L')
+        #links consist of total links
+        links = sum(req_df["urlcount"])   
+        file_report.cell(200,10, txt=(f'Links Sent {links}'),ln = 1, align = 'L')
+
+    file_report.add_page()
     emoji_df = pd.DataFrame(emoji_dict, columns=['emoji', 'count'])
     fig = px.pie(emoji_df, values='count', names='emoji')
     fig.update_traces(textposition='inside', textinfo='percent+label')
     fig.write_image("fig1.png")
-    file_report.image("fig1.png")
+    file_report.cell(200,10, txt="  ",ln = 1, align = 'L')    
+    file_report.cell(200,10, txt="Percentuale emoji utilizzate",ln = 1, align = 'L')
+    file_report.image("fig1.png",w=180,h=100)
     
+   
+    for i in range(len(l)):
+        dummy_df = messages_df[messages_df['Author'] == l[i]]
+        text = " ".join(review for review in dummy_df.Message)
+        stopwords = set(STOPWORDS)
+        #Generate a word cloud image
+        wordcloud = WordCloud(stopwords=stopwords, background_color="white").generate(text)
+        wordcloud.to_file("fig2.png")
+
+    file_report.cell(200,10, txt="  ",ln = 1, align = 'L')    
+    file_report.cell(200,10, txt="Cloud Word",ln = 1, align = 'L')
+    file_report.image("fig2.png",w=180,h=100)
 
 
 #main
+def main(arg):
+    
+    user=""
+    platform=""
+    path=""
 
-pdf = FPDF()
-pdf.add_page()
-pdf.set_font("Arial", size = 15)
+ #   if ("-u" and "-f" and "-p") not in arg or len(arg)<7:
+ #       print("#####################################################################")
+ #       print(" ")
+ #       print("Usage: python SCRIPT_Name -p PLATFORM -u CHAT_OWNER -f FILE.ZIP")
+ #       print("")
+ #       print("!! Important !! ")
+ #       print("PLATFORM value are I for Ios and A for Android")
+ #       print("The file ZIP must contanined a folder with chat txt file and media. See test as example\n")
+ #       print("#####################################################################")
+ #       sys.exit()
+    
 
-hash=extract_chat()
-pdf.cell(200, 10, txt = "hash zip contente la chat estratta:"+str(hash),ln = 1, align = 'L')
+    for i in range(len(arg)):
+     
+        if arg[i] == '-p':
+            platform = arg[i+1]
+        
+        elif arg[i] == "-u":
+            user = arg[i+1]
+        
+        elif arg[i] == "-f":
+            path = arg[i+1]
 
-cleaned_data=[]
+    print("Platform "+platform)
+    print("Chat Owner "+user)
+    print("File Zip path " + path)
 
-#platform="android"
-#file_path = "chat_android.txt"
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size = 15)
 
+    #hash=extract_chat("ios_test.zip")
+    hash=extract_chat(path)
+    pdf.cell(200, 10, txt = "hash zip contente la chat estratta:"+str(hash),ln = 1, align = 'L')
 
-platform="ios"
-file_path = "chat.txt"
+    cleaned_data=[]
 
-with open(file_path, mode='r', encoding="utf8") as f:
-    data = f.readlines()
-
-
-if(platform == "ios"):
-    user = data[0].split(":")[2].split("]")[1][1:]
-    cleaned_data=ios_chat(user, data)
-else:
-    user="Pippo"  
-    cleaned_data=android_chat(user, data)
-
-makeHTML(user,cleaned_data)
-sentiment_analysis(cleaned_data, pdf)
-dayHTML(user,cleaned_data)
-
-pdf.output("report.pdf", "F")
-pdf.close()
+    #platform="android"
+    #file_path = "chat_android.txt"
 
 
+    #platform="ios"
+
+    file_path = "./chat/"+os.listdir("./chat")[0]+"/chat.txt"
+
+    with open(file_path, mode='r', encoding="utf8") as f:
+        data = f.readlines()
+
+
+    if(platform == "I"):
+        user = data[0].split(":")[2].split("]")[1][1:]
+        cleaned_data=ios_chat(user, data)
+    else:
+        user="Pippo"  
+        cleaned_data=android_chat(user, data)
+
+    makeHTML(user,cleaned_data)
+    sentiment_analysis(cleaned_data, pdf)
+    dayHTML(user,cleaned_data)
+
+    pdf.output("report.pdf", "F")
+    pdf.close()
+    print("#### Task Completed ####")
+
+
+if __name__ == "__main__":
+    
+    #main(["Python3 script_gi4mp.py", "-p", "A","-u","Pippo","-f","android_test.zip"])
+    main(["Python3 script_gi4mp.py", "-p", "I","-u","Jack","-f","ios_test.zip"])
+   # main(sys.argv)
