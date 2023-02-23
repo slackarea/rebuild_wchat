@@ -19,14 +19,14 @@ SDoLsQvlRg==
 30/09/22, 17:05 - Pluto: https://Lorem_ipsum_dolor_sit_amet.net
 04/10/22, 17:41 - Pippo: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod temporLorem ipsum dolor sit amet, consectetur adipiscing elit,
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-04/10/22, 18:41 - Pluto: ‎00000002-boardingpass.pdf (file allegato)
+04/10/22, 18:41 - Pluto: 00000002-boardingpass.pdf (file allegato)
 24/10/22, 18:31 - Pippo: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 24/10/22, 18:35 - Pluto: Lorem ipsum dolor sit amet
 24/10/22, 18:35 - Pluto: Lorem ipsum dolor sit amet
 24/10/22, 18:45 - Pippo: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i 
 24/10/22, 18:49 - Pluto: Lorem ipsum dolor sit amet, consectetur adipiscing elit, !!!
 27/10/22, 11:05 - Pippo: sed do eiusmod tempor i 
-27/10/22, 12:39 - Pluto: Lorem ipsum dolor sit amet
+27/10/22, 12:39 - Pluto: 00000006-AUDIO-2019-07-16-20-48-49.opus (file allegato)
 02/11/22, 07:24 - Pluto: Lorem ipsum dolor sit amet, consectetur adipiscing elit, !!! 💪🏻💪🏻💪🏻
 02/11/22, 07:24 - Pippo: Lorem ipsum dolor sit amet, consectetur adipiscing elit,  🙏
 02/11/22, 17:25 - Pippo: Lorem ipsum dolor sit amet, consectetur adipiscing elit, Lorem ipsum dolor sit amet, consectetur adipiscing elit, Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
@@ -48,7 +48,7 @@ Lorem ipsum dolor sit amet.
 03/11/22, 10:26 - Pluto: 😅
 03/11/22, 10:26 - Pluto: 😂
 03/11/22, 10:27 - Pluto: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-02/02/23, 15:26 - Pluto: ‎00000016-PHOTO-2019-07-17-16-40-13.jpg (file allegato)
+02/02/23, 15:26 - Pluto: 00000016-PHOTO-2019-07-17-16-40-13.jpg (file allegato)
 02/02/23, 15:27 - Pippo: Lorem ipsum dolor sit amet, consectetur adipiscing elit
 02/02/23, 15:29 - Pluto: Excepteur sint occaecat cupidatat non proident
 02/02/23, 15:29 - Pluto: Io uso una notazione vecchia
@@ -58,8 +58,8 @@ Lorem ipsum dolor sit amet.
 03/02/23, 11:40 - Pippo: Lorem ipsum dolor sit amet, consectetur adipiscing elit
 03/02/23, 11:40 - Pluto: sed do eiusmod tempor i 
 03/02/23, 11:40 - Pluto: Uff
-06/02/23, 10:36 - Pluto: ‎00000004-GIF-2019-07-16-20-38-05.mp4 (file allegato)
-06/02/23, 10:37 - Pluto: ‎00000009-PHOTO-2019-07-16-20-52-29.jpg (file allegato)
+06/02/23, 10:36 - Pluto: 00000004-GIF-2019-07-16-20-38-05.mp4 (file allegato)
+06/02/23, 10:37 - Pluto: 00000009-PHOTO-2019-07-16-20-52-29.jpg (file allegato)
 06/02/23, 16:29 - Pippo: import os
 
 

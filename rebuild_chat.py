@@ -371,16 +371,16 @@ def main(arg):
     platform=""
     path=""
 
- #   if ("-u" and "-f" and "-p") not in arg or len(arg)<7:
- #       print("#####################################################################")
- #       print(" ")
- #       print("Usage: python SCRIPT_Name -p PLATFORM -u CHAT_OWNER -f FILE.ZIP")
- #       print("")
- #       print("!! Important !! ")
- #       print("PLATFORM value are I for Ios and A for Android")
- #       print("The file ZIP must contanined a folder with chat txt file and media. See test as example\n")
- #       print("#####################################################################")
- #       sys.exit()
+    if ("-u" and "-f" and "-p") not in arg or len(arg)<7:
+        print("#####################################################################")
+        print(" ")
+        print("Usage: python rebuild_chat.py -p PLATFORM -u CHAT_OWNER -f FILE.ZIP")
+        print("")
+        print("!! Important !! ")
+        print("PLATFORM value are I for Ios and A for Android")
+        print("The file ZIP must contanined a folder with chat txt file and media. See test as example\n")
+        print("######################################################################")
+        sys.exit()
     
 
     for i in range(len(arg)):
