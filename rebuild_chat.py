@@ -115,6 +115,7 @@ def makeHTML(user,cleaned_data):
 
     os.mkdir(folder)
     shutil.copyfile("style.css","html/style.css")
+    shutil.copytree("libs", "html/libs", dirs_exist_ok=True)
 
 
     file_html_path = folder+"index_wa.html"
@@ -132,7 +133,9 @@ def makeHTML(user,cleaned_data):
     message_template=env.get_template("message_template.txt")
     media_template=env.get_template("media_template.txt")
 
+    
     i.write(start.render(name=user))
+    
 
     message_date = ""
     p=""
@@ -162,7 +165,7 @@ def makeHTML(user,cleaned_data):
                 filename=m[4][0:position_android-1]
                 attacched=1
 
-        mediaPath="../chat/"+os.listdir("./chat")[0]+"/"
+        mediaPath="../chat/"
 
         if attacched>-1:
             if(m[4].find(".jpg")>-1):
@@ -206,6 +209,7 @@ def dayHTML(user,cleaned_data):
 
     os.mkdir(dayPath)
     shutil.copyfile("style.css","day_by_day/style.css")
+    shutil.copytree("libs", "html/libs", dirs_exist_ok=True)
 
     indexHTML = open(dayPath+"index.html",mode='x', encoding="utf8")
     indexHTML.write("<HTML><HEAD> Index Chat<br></HEAD> <BODY>")
@@ -250,7 +254,7 @@ def dayHTML(user,cleaned_data):
                 filename=m[4][0:position_android-1]
                 attacched=1
 
-        mediaPath="../chat/"+os.listdir("./chat")[0]+"/"
+        mediaPath="../chat/"
 
         if attacched>-1:
             if(m[4].find(".jpg")>-1):
@@ -414,18 +418,22 @@ def main(arg):
 
     #platform="ios"
 
-    file_path = "./chat/"+os.listdir("./chat")[0]+"/chat.txt"
+    # file_path = "./chat/"+os.listdir("./chat")[0]+"/chat.txt"
+
+    if(platform == "I"):
+        # user = data[0].split(":")[2].split("]")[1][1:]
+        file_path = "./chat/_chat.txt"
+        with open(file_path, mode='r', encoding="utf8") as f:
+            data = f.readlines()
+        cleaned_data=ios_chat(user, data)
+    else:
+        # user="Pippo"  
+        cleaned_data=android_chat(user, data)
+
 
     with open(file_path, mode='r', encoding="utf8") as f:
         data = f.readlines()
 
-
-    if(platform == "I"):
-        user = data[0].split(":")[2].split("]")[1][1:]
-        cleaned_data=ios_chat(user, data)
-    else:
-        user="Pippo"  
-        cleaned_data=android_chat(user, data)
 
     makeHTML(user,cleaned_data)
     sentiment_analysis(cleaned_data, pdf)
@@ -438,6 +446,7 @@ def main(arg):
 
 if __name__ == "__main__":
     
-    #main(["Python3 script_gi4mp.py", "-p", "A","-u","Pippo","-f","android_test.zip"])
-    main(["Python3 script_gi4mp.py", "-p", "I","-u","Jack","-f","ios_test.zip"])
-   # main(sys.argv)
+    # Use only for test
+    # main(["Python3 script_gi4mp.py", "-p", "A","-u","Pippo","-f","android_test.zip"])
+    # main(["Python3 script_gi4mp.py", "-p", "I","-u","Jack","-f","ios_test.zip"])
+    main(sys.argv)
