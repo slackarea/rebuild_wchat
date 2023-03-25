@@ -106,7 +106,7 @@ def android_chat(user,data):
 
 
 
-def makeHTML(user,cleaned_data):
+def makeHTML(user,recived, cleaned_data):
     
     folder="./html/"
     
@@ -115,6 +115,7 @@ def makeHTML(user,cleaned_data):
 
     os.mkdir(folder)
     shutil.copyfile("style.css","html/style.css")
+    shutil.copytree("./libs","./html/libs")
 
 
     file_html_path = folder+"index_wa.html"
@@ -132,7 +133,7 @@ def makeHTML(user,cleaned_data):
     message_template=env.get_template("message_template.txt")
     media_template=env.get_template("media_template.txt")
 
-    i.write(start.render(name=user))
+    i.write(start.render(name=recived))
 
     message_date = ""
     p=""
@@ -162,7 +163,7 @@ def makeHTML(user,cleaned_data):
                 filename=m[4][0:position_android-1]
                 attacched=1
 
-        mediaPath="../chat/"+os.listdir("./chat")[0]+"/"
+        mediaPath="../chat/"
 
         if attacched>-1:
             if(m[4].find(".jpg")>-1):
@@ -186,7 +187,7 @@ def makeHTML(user,cleaned_data):
 
 
 #questa funziona crea un indice con il collegamento a tutti i messaggi di un dato giorno
-def dayHTML(user,cleaned_data):    
+def dayHTML(user,recived,cleaned_data):    
     dayPath="./day_by_day/"
     
     #utilizzato per capire quando chiudere la chat del giorno
@@ -206,6 +207,7 @@ def dayHTML(user,cleaned_data):
 
     os.mkdir(dayPath)
     shutil.copyfile("style.css","day_by_day/style.css")
+    shutil.copytree("./libs","./day_by_day/libs")
 
     indexHTML = open(dayPath+"index.html",mode='x', encoding="utf8")
     indexHTML.write("<HTML><HEAD> Index Chat<br></HEAD> <BODY>")
@@ -214,7 +216,7 @@ def dayHTML(user,cleaned_data):
     
     i = open(dayPath+str(message_date).replace("/","-")+".html", mode='x', encoding="utf8")
     indexHTML.write("<a href=\""+str(message_date).replace("/","-")+".html\">"+message_date+"</a><br>")
-    i.write(start.render(name=user))
+    i.write(start.render(name=recived))
     i.write((day_template.render(day=message_date)))
 
         
@@ -250,7 +252,7 @@ def dayHTML(user,cleaned_data):
                 filename=m[4][0:position_android-1]
                 attacched=1
 
-        mediaPath="../chat/"+os.listdir("./chat")[0]+"/"
+        mediaPath="../chat/"
 
         if attacched>-1:
             if(m[4].find(".jpg")>-1):
@@ -363,11 +365,13 @@ def sentiment_analysis(cleaned_data,file_report):
     file_report.cell(200,10, txt="Cloud Word",ln = 1, align = 'L')
     file_report.image("fig2.png",w=180,h=100)
 
+    return l
 
 #main
 def main(arg):
     
     user=""
+    recived=""
     platform=""
     path=""
 
@@ -414,22 +418,35 @@ def main(arg):
 
     #platform="ios"
 
-    file_path = "./chat/"+os.listdir("./chat")[0]+"/chat.txt"
+    #file_path = "./chat/"+os.listdir("./chat")[0]+"/chat.txt"
+
+    if(platform == "A"):
+        file_path="./chat/chat.txt"
+    else:
+        file_path="./chat/_chat.txt"
+
 
     with open(file_path, mode='r', encoding="utf8") as f:
         data = f.readlines()
 
 
     if(platform == "I"):
-        user = data[0].split(":")[2].split("]")[1][1:]
+        ##user = data[0].split(":")[2].split("]")[1][1:]
         cleaned_data=ios_chat(user, data)
     else:
-        user="Pippo"  
+        #user="Pippo"  
         cleaned_data=android_chat(user, data)
 
-    makeHTML(user,cleaned_data)
-    sentiment_analysis(cleaned_data, pdf)
-    dayHTML(user,cleaned_data)
+    author=sentiment_analysis(cleaned_data, pdf)
+
+    for a in author:
+        if a != user:
+            recived=a
+
+
+    makeHTML(user,recived, cleaned_data)
+    #sentiment_analysis(cleaned_data, pdf)
+    dayHTML(user,recived,cleaned_data)
 
     pdf.output("report.pdf", "F")
     pdf.close()
