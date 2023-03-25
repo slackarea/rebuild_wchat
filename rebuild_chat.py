@@ -418,23 +418,17 @@ def main(arg):
 
     #platform="ios"
 
-    #file_path = "./chat/"+os.listdir("./chat")[0]+"/chat.txt"
-
-    if(platform == "A"):
-        file_path="./chat/chat.txt"
-    else:
-        file_path="./chat/_chat.txt"
-
+    file_path = "./chat/"+os.listdir("./chat")[0]+"/chat.txt"
 
     with open(file_path, mode='r', encoding="utf8") as f:
         data = f.readlines()
 
 
     if(platform == "I"):
-        ##user = data[0].split(":")[2].split("]")[1][1:]
+        user = data[0].split(":")[2].split("]")[1][1:]
         cleaned_data=ios_chat(user, data)
     else:
-        #user="Pippo"  
+        user="Pippo"  
         cleaned_data=android_chat(user, data)
 
     author=sentiment_analysis(cleaned_data, pdf)
@@ -455,6 +449,7 @@ def main(arg):
 
 if __name__ == "__main__":
     
-    #main(["Python3 script_gi4mp.py", "-p", "A","-u","Pippo","-f","android_test.zip"])
-    main(["Python3 script_gi4mp.py", "-p", "I","-u","Jack","-f","ios_test.zip"])
-   # main(sys.argv)
+    # Use only for test
+    # main(["Python3 script_gi4mp.py", "-p", "A","-u","Pippo","-f","android_test.zip"])
+    # main(["Python3 script_gi4mp.py", "-p", "I","-u","Jack","-f","ios_test.zip"])
+    main(sys.argv)
