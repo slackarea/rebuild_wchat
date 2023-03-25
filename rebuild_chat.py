@@ -418,7 +418,10 @@ def main(arg):
 
     #platform="ios"
 
-    file_path = "./chat/"+os.listdir("./chat")[0]+"/chat.txt"
+    if(platform == "I"):
+        file_path = "./chat/_chat.txt"
+    else:
+        file_path = "./chat/chat.txt"
 
     with open(file_path, mode='r', encoding="utf8") as f:
         data = f.readlines()
@@ -451,5 +454,5 @@ if __name__ == "__main__":
     
     # Use only for test
     # main(["Python3 script_gi4mp.py", "-p", "A","-u","Pippo","-f","android_test.zip"])
-    # main(["Python3 script_gi4mp.py", "-p", "I","-u","Jack","-f","ios_test.zip"])
-    main(sys.argv)
+     main(["Python3 script_gi4mp.py", "-p", "I","-u","Jack","-f","ios_test.zip"])
+    #main(sys.argv)
