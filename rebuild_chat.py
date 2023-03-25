@@ -14,6 +14,7 @@ from collections import Counter
 import plotly.express as px
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 
 #questa funzione servirà per estrarre il file zip contente la chat e ritorno l'hash del file zip
@@ -296,15 +297,23 @@ def sentiment_analysis(cleaned_data,file_report):
         return emoji_list
     df['emoji'] = df["Message"].apply(split_count)
     emojis = sum(df['emoji'].str.len())
-    
+    file_report.cell(200,10, txt="Numero emojis "+str(emojis),ln = 1, align = 'L')
+
     URLPATTERN = r'(https?://\S+)'
     df['urlcount'] = df.Message.apply(lambda x: regex.findall(URLPATTERN, x)).str.len()
     links = np.sum(df.urlcount)
-    
-    file_report.cell(200,10, txt="Numero emojis "+str(emojis),ln = 1, align = 'L')
     file_report.cell(200,10, txt="Numero link scambiati "+str(links),ln = 1, align = 'L')
-
     
+    NUMTELPATTERN = r'(\+39\d{9,10})'
+    df['numtelcount'] = df.Message.apply(lambda x: regex.findall(NUMTELPATTERN, x)).str.len()
+    numtels = np.sum(df.numtelcount)
+    file_report.cell(200,10, txt="Numero numeri di telefono scambiati "+str(numtels),ln = 1, align = 'L')
+
+    EMAILPATTERN = r'(\S+@\S+)'
+    df['emailcount'] = df.Message.apply(lambda x: regex.findall(EMAILPATTERN, x)).str.len()
+    emails = np.sum(df.emailcount)
+    file_report.cell(200,10, txt="Numero email scambiate "+str(emails),ln = 1, align = 'L')
+
    
     media_messages_df = df[df["Message"].str.contains('<allegato: ')]
     messages_df = df.drop(media_messages_df.index)
@@ -342,6 +351,12 @@ def sentiment_analysis(cleaned_data,file_report):
         #links consist of total links
         links = sum(req_df["urlcount"])   
         file_report.cell(200,10, txt=(f'Links Sent {links}'),ln = 1, align = 'L')
+        #numtels consist of total numtels
+        numtels = sum(req_df["numtelcount"])
+        file_report.cell(200,10, txt=(f'Numeri di telefono scambiati {numtels}'),ln = 1, align = 'L')
+        #emails consist of total emails
+        emails = sum(req_df["emailcount"])
+        file_report.cell(200,10, txt=(f'Email scambiate {emails}'),ln = 1, align = 'L')
 
     file_report.add_page()
     emoji_df = pd.DataFrame(emoji_dict, columns=['emoji', 'count'])
@@ -365,6 +380,7 @@ def sentiment_analysis(cleaned_data,file_report):
     file_report.cell(200,10, txt="Cloud Word",ln = 1, align = 'L')
     file_report.image("fig2.png",w=180,h=100)
 
+ 
     return l
 
 #main
@@ -444,9 +460,19 @@ def main(arg):
     makeHTML(user,recived, cleaned_data)
     #sentiment_analysis(cleaned_data, pdf)
     dayHTML(user,recived,cleaned_data)
-
+    #create folder for sentiment analysis output files
+    #move all files in the folder
+    Path('report_sentiment_analysis').mkdir(parents=True, exist_ok=True)
     pdf.output("report.pdf", "F")
     pdf.close()
+    shutil.move("report.pdf", "report_sentiment_analysis")
+    shutil.move("fig1.png", "report_sentiment_analysis")
+    shutil.move("fig2.png", "report_sentiment_analysis")
+    shutil.move("chat", "report_sentiment_analysis")
+    shutil.move("day_by_day", "report_sentiment_analysis")
+    shutil.move("html", "report_sentiment_analysis")
+
+
     print("#### Task Completed ####")
 
 
