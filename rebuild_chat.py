@@ -15,6 +15,7 @@ import plotly.express as px
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
 from pathlib import Path
+import uuid
 
 
 #questa funzione servirà per estrarre il file zip contente la chat e ritorno l'hash del file zip
@@ -460,17 +461,20 @@ def main(arg):
     makeHTML(user,recived, cleaned_data)
     #sentiment_analysis(cleaned_data, pdf)
     dayHTML(user,recived,cleaned_data)
-    #create folder for sentiment analysis output files
-    #move all files in the folder
-    Path('report_sentiment_analysis').mkdir(parents=True, exist_ok=True)
+    
     pdf.output("report.pdf", "F")
     pdf.close()
-    shutil.move("report.pdf", "report_sentiment_analysis")
-    shutil.move("fig1.png", "report_sentiment_analysis")
-    shutil.move("fig2.png", "report_sentiment_analysis")
-    shutil.move("chat", "report_sentiment_analysis")
-    shutil.move("day_by_day", "report_sentiment_analysis")
-    shutil.move("html", "report_sentiment_analysis")
+    id = str(uuid.uuid4())
+    #create folder for sentiment analysis output files
+    #move all files in the folder
+    dir_path="report_sentiment_analysis_"+id
+    Path(dir_path).mkdir(parents=True, exist_ok=True)
+    shutil.move("report.pdf", dir_path)
+    shutil.move("fig1.png", dir_path)
+    shutil.move("fig2.png", dir_path)
+    shutil.move("chat", dir_path)
+    shutil.move("day_by_day", dir_path)
+    shutil.move("html", dir_path)
 
 
     print("#### Task Completed ####")
