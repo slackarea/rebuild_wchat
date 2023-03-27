@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+
+  app:
+
+    #environment:
+    build: .  
+    ports:
+      - "5000:5000"
