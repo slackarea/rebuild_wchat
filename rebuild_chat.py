@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import uuid
 import json
+from gps_analyzer import *
 
 #questa funzione servirà per estrarre il file zip contente la chat e ritorno l'hash del file zip
 def extract_chat(name):
@@ -135,7 +136,7 @@ def makeHTML(user,recived, cleaned_data):
     message_template=env.get_template("message_template.txt")
     media_template=env.get_template("media_template.txt")
 
-    i.write(start.render(name=recived))
+    i.write(start.render(name=user))
 
     message_date = ""
     p=""
@@ -218,7 +219,7 @@ def dayHTML(user,recived,cleaned_data):
     
     i = open(dayPath+str(message_date).replace("/","-")+".html", mode='x', encoding="utf8")
     indexHTML.write("<a href=\""+str(message_date).replace("/","-")+".html\">"+message_date+"</a><br>")
-    i.write(start.render(name=recived))
+    i.write(start.render(name=user))
     i.write((day_template.render(day=message_date)))
 
         
@@ -340,7 +341,7 @@ def sentiment_analysis(cleaned_data,file_report):
     df['gpscount'] = df.Message.apply(lambda x: regex.findall(GPSPATTERN, x)).str.len()
     gps = np.sum(df.gpscount)
     file_report.cell(200,10, txt="Numero posizioni GPS scambiate "+str(gps),ln = 1, align = 'L')
-
+    gps_analysis.gps_map()
 
    
     media_messages_df = df[df["Message"].str.contains('<allegato: ')]
@@ -507,6 +508,8 @@ def main(arg):
     shutil.move("url_list.json", dir_path)
     shutil.move("email_list.json", dir_path)
     shutil.move("gps_list.json", dir_path)
+    shutil.move("GPS_ONLY_COORDS.json", dir_path)
+    shutil.move("gps_map.html", dir_path)
 
     print("#### Task Completed ####")
 
