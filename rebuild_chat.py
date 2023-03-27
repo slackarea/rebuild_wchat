@@ -16,7 +16,7 @@ from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
 from pathlib import Path
 import uuid
-
+import json
 
 #questa funzione servirà per estrarre il file zip contente la chat e ritorno l'hash del file zip
 def extract_chat(name):
@@ -301,6 +301,13 @@ def sentiment_analysis(cleaned_data,file_report):
     file_report.cell(200,10, txt="Numero emojis "+str(emojis),ln = 1, align = 'L')
 
     URLPATTERN = r'(https?://\S+)'
+    url_list = []
+    data= regex.findall(URLPATTERN, df.Message.to_string())
+    for url in data:
+        url_list.append(url)
+    #print(url_list)
+    with open('url_list.json', "w") as f:
+            f.write(json.dumps(url_list, default=str, indent=4))
     df['urlcount'] = df.Message.apply(lambda x: regex.findall(URLPATTERN, x)).str.len()
     links = np.sum(df.urlcount)
     file_report.cell(200,10, txt="Numero link scambiati "+str(links),ln = 1, align = 'L')
@@ -311,9 +318,29 @@ def sentiment_analysis(cleaned_data,file_report):
     file_report.cell(200,10, txt="Numero numeri di telefono scambiati "+str(numtels),ln = 1, align = 'L')
 
     EMAILPATTERN = r'(\S+@\S+)'
+    email_list = []
+    data= regex.findall(EMAILPATTERN, df.Message.to_string())
+    for email in data:
+        email_list.append(email)
+    #print(email_list)
+    with open('email_list.json', "w") as f:
+            f.write(json.dumps(email_list, default=str, indent=4))
     df['emailcount'] = df.Message.apply(lambda x: regex.findall(EMAILPATTERN, x)).str.len()
     emails = np.sum(df.emailcount)
     file_report.cell(200,10, txt="Numero email scambiate "+str(emails),ln = 1, align = 'L')
+
+    GPSPATTERN= r'https?://maps\.google\.com/\?q=\d+\.\d+,\d+\.\d+'
+    gps_list = []
+    data= regex.findall(GPSPATTERN, df.Message.to_string())
+    for gps in data:
+        gps_list.append(gps)
+    #print(gps_list)
+    with open('gps_list.json', "w") as f:
+            f.write(json.dumps(gps_list, default=str, indent=4))
+    df['gpscount'] = df.Message.apply(lambda x: regex.findall(GPSPATTERN, x)).str.len()
+    gps = np.sum(df.gpscount)
+    file_report.cell(200,10, txt="Numero posizioni GPS scambiate "+str(gps),ln = 1, align = 'L')
+
 
    
     media_messages_df = df[df["Message"].str.contains('<allegato: ')]
@@ -461,9 +488,11 @@ def main(arg):
     makeHTML(user,recived, cleaned_data)
     #sentiment_analysis(cleaned_data, pdf)
     dayHTML(user,recived,cleaned_data)
-    
+
+
     pdf.output("report.pdf", "F")
     pdf.close()
+    #gps_analyzer()
     id = str(uuid.uuid4())
     #create folder for sentiment analysis output files
     #move all files in the folder
@@ -475,7 +504,9 @@ def main(arg):
     shutil.move("chat", dir_path)
     shutil.move("day_by_day", dir_path)
     shutil.move("html", dir_path)
-
+    shutil.move("url_list.json", dir_path)
+    shutil.move("email_list.json", dir_path)
+    shutil.move("gps_list.json", dir_path)
 
     print("#### Task Completed ####")
 
@@ -484,5 +515,5 @@ if __name__ == "__main__":
     
     # Use only for test
     # main(["Python3 script_gi4mp.py", "-p", "A","-u","Pippo","-f","android_test.zip"])
-     main(["Python3 script_gi4mp.py", "-p", "I","-u","Jack","-f","ios_test.zip"])
+    main(["Python3 script_gi4mp.py", "-p", "I","-u","Jack","-f","ios_test.zip"])
     #main(sys.argv)
