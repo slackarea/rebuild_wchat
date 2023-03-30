@@ -40,7 +40,7 @@ class gps_analysis:
 
         # Add pins for coordinates
         for i in range(len(coordinates_list)):
-            folium.Marker(location=coordinates_list[i]).add_to(map)
+            folium.Marker(location=coordinates_list[i],popup=coordinates_list[i]).add_to(map)
 
         # Save map in HTML
         map.save('gps_map.html')
