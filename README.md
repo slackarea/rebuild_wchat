@@ -55,6 +55,7 @@ cooming soon
 * **Vincenzo Ingrosso** - *Initial work* - [slackarea](https://github.com/slackarea)
 * **Giampiero Giacalone** - *Initial work* - [gi4mp](https://github.com/gi4mp)
 * **Vito Monteleone** - *Initial work* - [Monteleone](https://github.com/Monteleone)
+* **Francesco Avantaggiato** - *Improvements* - [francescoavant](https://github.com/francescoavant)
 
 
 ## License
