@@ -18,6 +18,7 @@ from pathlib import Path
 import uuid
 import json
 from gps_analyzer import *
+from url_analyzer import *
 
 #questa funzione servirà per estrarre il file zip contente la chat e ritorno l'hash del file zip
 def extract_chat(name):
@@ -312,6 +313,7 @@ def sentiment_analysis(cleaned_data,file_report):
     df['urlcount'] = df.Message.apply(lambda x: regex.findall(URLPATTERN, x)).str.len()
     links = np.sum(df.urlcount)
     file_report.cell(200,10, txt="Numero link scambiati "+str(links),ln = 1, align = 'L')
+    url_analyzer.url_whois()
     
     NUMTELPATTERN = r'(\+39\d{9,10})'
     df['numtelcount'] = df.Message.apply(lambda x: regex.findall(NUMTELPATTERN, x)).str.len()
@@ -386,6 +388,9 @@ def sentiment_analysis(cleaned_data,file_report):
         #emails consist of total emails
         emails = sum(req_df["emailcount"])
         file_report.cell(200,10, txt=(f'Email scambiate {emails}'),ln = 1, align = 'L')
+        #gps consist of total gps
+        gps = sum(req_df["gpscount"])
+        file_report.cell(200,10, txt=(f'Posizioni GPS scambiate {gps}'),ln = 1, align = 'L')
 
     file_report.add_page()
     emoji_df = pd.DataFrame(emoji_dict, columns=['emoji', 'count'])
@@ -493,7 +498,6 @@ def main(arg):
 
     pdf.output("report.pdf", "F")
     pdf.close()
-    #gps_analyzer()
     id = str(uuid.uuid4())
     #create folder for sentiment analysis output files
     #move all files in the folder
@@ -505,12 +509,17 @@ def main(arg):
     shutil.move("chat", dir_path)
     shutil.move("day_by_day", dir_path)
     shutil.move("html", dir_path)
+    gps_path="gps_info_"+id
+    Path(gps_path).mkdir(parents=True, exist_ok=True)
+    shutil.move("gps_list.json", gps_path)
+    shutil.move("GPS_ONLY_COORDS.json", gps_path)
+    shutil.move("gps_map.html", gps_path)
+    shutil.move(gps_path, dir_path)
     shutil.move("url_list.json", dir_path)
     shutil.move("email_list.json", dir_path)
-    shutil.move("gps_list.json", dir_path)
-    shutil.move("GPS_ONLY_COORDS.json", dir_path)
-    shutil.move("gps_map.html", dir_path)
-
+    shutil.move("whois_output.json", dir_path)
+    shutil.make_archive(dir_path, 'zip',dir_path) 
+    shutil.rmtree(dir_path)
     print("#### Task Completed ####")
 
 

@@ -24,6 +24,23 @@ pip install -r requirements.txt
 ```
 
 ...
+## Docker
+This repository contains the Dockerfile and instructions for building and running the app using Docker.
+### Prerequisites
+You'll need to have Docker installed on your system. If you don't have it already, you can download and install Docker from the [official website](https://www.docker.com/get-started/).
+
+### Build the Docker Image
+Use the following command in the root directory of the repository:
+
+```
+docker build --pull --rm -f "Dockerfile" -t rebuildwchat:latest "."
+```
+### Run the app with Docker Compose
+Use the following command:
+
+```
+docker compose -f "docker-compose.yml" up -d --build
+```
 
 ## Contributing
 
