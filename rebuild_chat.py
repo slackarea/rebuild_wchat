@@ -349,7 +349,21 @@ def sentiment_analysis(cleaned_data,file_report):
     media_messages_df = df[df["Message"].str.contains('<allegato: ')]
     messages_df = df.drop(media_messages_df.index)
     messages_df['Letter_Count'] = messages_df['Message'].apply(lambda s : len(s))
-    messages_df['Word_Count'] = messages_df['Message'].apply(lambda s : len(s.split(' ')))
+    
+    #count words without considering prepositions and conjunctions in Italian language
+    with open('congiunzioni_preposizioni.json', "r") as f:
+        data = json.load(f)
+    cong= set(data['congiunzioni'])
+    prep= set(data['preposizioni'])
+    def word_count(text):
+        words= text.split()
+        c= 0
+        for word in words:
+            if word not in cong and word not in prep:
+                c+=1
+        return c
+    messages_df['Word_Count'] = messages_df['Message'].apply(word_count)
+    #messages_df['Word_Count'] = messages_df['Message'].apply(lambda s : len(s.split(' ')))
     messages_df["MessageCount"]=1
 
     total_emojis_list = list(set([a for b in messages_df.emoji for a in b]))
@@ -373,6 +387,9 @@ def sentiment_analysis(cleaned_data,file_report):
         #Word_Count contains of total words in one message. Sum of all words/ Total Messages will yield words per message
         words_per_message = (np.sum(req_df['Word_Count']))/req_df.shape[0]
         file_report.cell(200,10, txt=(f'Average Words per message {words_per_message}'),ln = 1, align = 'L')
+        #Word_Count contains of total words in one message.
+        total_words = np.sum(req_df['Word_Count'])
+        file_report.cell(200,10, txt=(f'Total Words Sent {total_words}'),ln = 1, align = 'L')
         #media conists of media messages
         media = media_messages_df[media_messages_df['Author'] == l[i]].shape[0]
         file_report.cell(200,10, txt=(f'Media Messages Sent {media}'),ln = 1, align = 'L')
