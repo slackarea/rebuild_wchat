@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import uuid
 import json
+from fpdf.enums import XPos, YPos
 from gps_analyzer import *
 from url_analyzer import *
 
@@ -284,265 +285,264 @@ def dayHTML(user,recived,cleaned_data):
 
 
 def sentiment_analysis(cleaned_data,file_report):
-    df = pd.DataFrame(cleaned_data, columns=["Type","Date", 'Time', 'Author', 'Message'])
-    df['Date'] = pd.to_datetime(df['Date'])
-    file_report.cell(200, 10, txt = "Autori dei messaggi scambiati: "+str(df.Author.unique()),ln = 1, align = 'L')
-    file_report.cell(200, 10, txt = "Numero totale di messaggi "+str(df.shape[0]),ln = 1, align = 'L')  
-    file_report.cell(200,10, txt="Numero media scambiati "+str(df[df["Message"].str.contains('<allegato: ')].shape[0]),ln = 1, align = 'L')
+        df = pd.DataFrame(cleaned_data, columns=["Type","Date", 'Time', 'Author', 'Message'])
+        df['Date'] = pd.to_datetime(df['Date'])
+        file_report.cell(200, 10, txt = "Autori dei messaggi scambiati: "+str(df.Author.unique()),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+        file_report.cell(200, 10, txt = "Numero totale di messaggi "+str(df.shape[0]),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')  
+        file_report.cell(200,10, txt="Numero media scambiati "+str(df[df["Message"].str.contains('<allegato: ')].shape[0]),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
 
 
-    def split_count(text):
-        emoji_list = []
-        data = regex.findall(r'\X',text)
-        for word in data:
-            if any(char in emoji.EMOJI_DATA for char in word):
-                emoji_list.append(word)
-        return emoji_list
-    df['emoji'] = df["Message"].apply(split_count)
-    emojis = sum(df['emoji'].str.len())
-    file_report.cell(200,10, txt="Numero emojis "+str(emojis),ln = 1, align = 'L')
+        def split_count(text):
+            emoji_list = []
+            data = regex.findall(r'\X',text)
+            for word in data:
+                if any(char in emoji.EMOJI_DATA for char in word):
+                    emoji_list.append(word)
+            return emoji_list
+        df['emoji'] = df["Message"].apply(split_count)
+        emojis = sum(df['emoji'].str.len())
+        file_report.cell(200,10, txt="Numero emojis "+str(emojis),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
 
-    URLPATTERN = r'(https?://\S+)'
-    url_list = []
-    data= regex.findall(URLPATTERN, df.Message.to_string())
-    for url in data:
-        url_list.append(url)
-    #print(url_list)
-    with open('url_list.json', "w") as f:
-            f.write(json.dumps(url_list, default=str, indent=4))
-    df['urlcount'] = df.Message.apply(lambda x: regex.findall(URLPATTERN, x)).str.len()
-    links = np.sum(df.urlcount)
-    file_report.cell(200,10, txt="Numero link scambiati "+str(links),ln = 1, align = 'L')
-    url_analyzer.url_whois()
+        URLPATTERN = r'(https?://\S+)'
+        url_list = []
+        data= regex.findall(URLPATTERN, df.Message.to_string())
+        for url in data:
+            url_list.append(url)
+        #print(url_list)
+        with open('url_list.json', "w") as f:
+                f.write(json.dumps(url_list, default=str, indent=4))
+        df['urlcount'] = df.Message.apply(lambda x: regex.findall(URLPATTERN, x)).str.len()
+        links = np.sum(df.urlcount)
+        file_report.cell(200,10, txt="Numero link scambiati "+str(links),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+        url_analyzer.url_whois()
+        
+        NUMTELPATTERN = r'(\+39\d{9,10})'
+        df['numtelcount'] = df.Message.apply(lambda x: regex.findall(NUMTELPATTERN, x)).str.len()
+        numtels = np.sum(df.numtelcount)
+        file_report.cell(200,10, txt="Numero numeri di telefono scambiati "+str(numtels),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+
+        EMAILPATTERN = r'(\S+@\S+)'
+        email_list = []
+        data= regex.findall(EMAILPATTERN, df.Message.to_string())
+        for email in data:
+            email_list.append(email)
+        #print(email_list)
+        with open('email_list.json', "w") as f:
+                f.write(json.dumps(email_list, default=str, indent=4))
+        df['emailcount'] = df.Message.apply(lambda x: regex.findall(EMAILPATTERN, x)).str.len()
+        emails = np.sum(df.emailcount)
+        file_report.cell(200,10, txt="Numero email scambiate "+str(emails),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+
+        GPSPATTERN= r'https?://maps\.google\.com/\?q=\d+\.\d+,\d+\.\d+'
+        gps_list = []
+        data= regex.findall(GPSPATTERN, df.Message.to_string())
+        for gps in data:
+            gps_list.append(gps)
+        #print(gps_list)
+        with open('gps_list.json', "w") as f:
+                f.write(json.dumps(gps_list, default=str, indent=4))
+        df['gpscount'] = df.Message.apply(lambda x: regex.findall(GPSPATTERN, x)).str.len()
+        gps = np.sum(df.gpscount)
+        file_report.cell(200,10, txt="Numero posizioni GPS scambiate "+str(gps),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+        gps_analysis.gps_map()
+
     
-    NUMTELPATTERN = r'(\+39\d{9,10})'
-    df['numtelcount'] = df.Message.apply(lambda x: regex.findall(NUMTELPATTERN, x)).str.len()
-    numtels = np.sum(df.numtelcount)
-    file_report.cell(200,10, txt="Numero numeri di telefono scambiati "+str(numtels),ln = 1, align = 'L')
+        media_messages_df = df[df["Message"].str.contains('<allegato: ')]
+        messages_df = df.drop(media_messages_df.index)
+        messages_df['Letter_Count'] = messages_df['Message'].apply(lambda s : len(s))
+        
+        #count words without considering prepositions and conjunctions in Italian language
+        with open('congiunzioni_preposizioni.json', "r") as f:
+            data = json.load(f)
+        cong= set(data['congiunzioni'])
+        prep= set(data['preposizioni'])
+        def word_count(text):
+            words= text.split()
+            c= 0
+            for word in words:
+                if word not in cong and word not in prep:
+                    c+=1
+            return c
+        messages_df['Word_Count'] = messages_df['Message'].apply(word_count)
+        #messages_df['Word_Count'] = messages_df['Message'].apply(lambda s : len(s.split(' ')))
+        messages_df["MessageCount"]=1
 
-    EMAILPATTERN = r'(\S+@\S+)'
-    email_list = []
-    data= regex.findall(EMAILPATTERN, df.Message.to_string())
-    for email in data:
-        email_list.append(email)
-    #print(email_list)
-    with open('email_list.json', "w") as f:
-            f.write(json.dumps(email_list, default=str, indent=4))
-    df['emailcount'] = df.Message.apply(lambda x: regex.findall(EMAILPATTERN, x)).str.len()
-    emails = np.sum(df.emailcount)
-    file_report.cell(200,10, txt="Numero email scambiate "+str(emails),ln = 1, align = 'L')
+        total_emojis_list = list(set([a for b in messages_df.emoji for a in b]))
+        total_emojis = len(total_emojis_list)
 
-    GPSPATTERN= r'https?://maps\.google\.com/\?q=\d+\.\d+,\d+\.\d+'
-    gps_list = []
-    data= regex.findall(GPSPATTERN, df.Message.to_string())
-    for gps in data:
-        gps_list.append(gps)
-    #print(gps_list)
-    with open('gps_list.json', "w") as f:
-            f.write(json.dumps(gps_list, default=str, indent=4))
-    df['gpscount'] = df.Message.apply(lambda x: regex.findall(GPSPATTERN, x)).str.len()
-    gps = np.sum(df.gpscount)
-    file_report.cell(200,10, txt="Numero posizioni GPS scambiate "+str(gps),ln = 1, align = 'L')
-    gps_analysis.gps_map()
+        total_emojis_list = list([a for b in messages_df.emoji for a in b])
+        emoji_dict = dict(Counter(total_emojis_list))
+        emoji_dict = sorted(emoji_dict.items(), key=lambda x: x[1], reverse=True)
+        
+        #for i in emoji_dict:
+        #    print(i)
+        
+        l = df.Author.unique()
+        for i in range(len(l)):
+        # Filtering out messages of particular user
+            req_df= messages_df[messages_df["Author"] == l[i]]
+            # req_df will contain messages of only one particular user
+            file_report.cell(200,10, txt=(f' - Stats of {l[i]} -'),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+            # shape will print number of rows which indirectly means the number of messages
+            file_report.cell(200,10, txt=(f'Messages Sent {req_df.shape[0]}'),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+            #Word_Count contains of total words in one message. Sum of all words/ Total Messages will yield words per message
+            words_per_message = (np.sum(req_df['Word_Count']))/req_df.shape[0]
+            file_report.cell(200,10, txt=(f'Average Words per message {words_per_message}'),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+            #Word_Count contains of total words in one message.
+            total_words = np.sum(req_df['Word_Count'])
+            file_report.cell(200,10, txt=(f'Total Words Sent {total_words}'),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+            #media conists of media messages
+            media = media_messages_df[media_messages_df['Author'] == l[i]].shape[0]
+            file_report.cell(200,10, txt=(f'Media Messages Sent {media}'),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+            # emojis conists of total emojis
+            emojis = sum(req_df['emoji'].str.len())
+            file_report.cell(200,10, txt=(f'Emojis Sent {emojis}'),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+            #links consist of total links
+            links = sum(req_df["urlcount"])   
+            file_report.cell(200,10, txt=(f'Links Sent {links}'),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+            #numtels consist of total numtels
+            numtels = sum(req_df["numtelcount"])
+            file_report.cell(200,10, txt=(f'Numeri di telefono scambiati {numtels}'),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+            #emails consist of total emails
+            emails = sum(req_df["emailcount"])
+            file_report.cell(200,10, txt=(f'Email scambiate {emails}'),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+            #gps consist of total gps
+            gps = sum(req_df["gpscount"])
+            file_report.cell(200,10, txt=(f'Posizioni GPS scambiate {gps}'),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
 
-   
-    media_messages_df = df[df["Message"].str.contains('<allegato: ')]
-    messages_df = df.drop(media_messages_df.index)
-    messages_df['Letter_Count'] = messages_df['Message'].apply(lambda s : len(s))
+        file_report.add_page()
+        emoji_df = pd.DataFrame(emoji_dict, columns=['emoji', 'count'])
+        fig = px.pie(emoji_df, values='count', names='emoji')
+        fig.update_traces(textposition='inside', textinfo='percent+label')
+        fig.write_image("fig1.png")
+        file_report.cell(200,10, txt="  ",new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')    
+        file_report.cell(200,10, txt="Percentuale emoji utilizzate",new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+        file_report.image("fig1.png",w=180,h=100)
+        
     
-    #count words without considering prepositions and conjunctions in Italian language
-    with open('congiunzioni_preposizioni.json', "r") as f:
-        data = json.load(f)
-    cong= set(data['congiunzioni'])
-    prep= set(data['preposizioni'])
-    def word_count(text):
-        words= text.split()
-        c= 0
-        for word in words:
-            if word not in cong and word not in prep:
-                c+=1
-        return c
-    messages_df['Word_Count'] = messages_df['Message'].apply(word_count)
-    #messages_df['Word_Count'] = messages_df['Message'].apply(lambda s : len(s.split(' ')))
-    messages_df["MessageCount"]=1
+        for i in range(len(l)):
+            dummy_df = messages_df[messages_df['Author'] == l[i]]
+            text = " ".join(review for review in dummy_df.Message)
+            stopwords = set(STOPWORDS)
+            #Generate a word cloud image
+            wordcloud = WordCloud(stopwords=stopwords, background_color="white").generate(text)
+            wordcloud.to_file("fig2.png")
 
-    total_emojis_list = list(set([a for b in messages_df.emoji for a in b]))
-    total_emojis = len(total_emojis_list)
+        file_report.cell(200,10, txt="  ",new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')    
+        file_report.cell(200,10, txt="Cloud Word",new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+        file_report.image("fig2.png",w=180,h=100)
 
-    total_emojis_list = list([a for b in messages_df.emoji for a in b])
-    emoji_dict = dict(Counter(total_emojis_list))
-    emoji_dict = sorted(emoji_dict.items(), key=lambda x: x[1], reverse=True)
     
-    #for i in emoji_dict:
-    #    print(i)
-    
-    l = df.Author.unique()
-    for i in range(len(l)):
-       # Filtering out messages of particular user
-        req_df= messages_df[messages_df["Author"] == l[i]]
-        # req_df will contain messages of only one particular user
-        file_report.cell(200,10, txt=(f' - Stats of {l[i]} -'),ln = 1, align = 'L')
-        # shape will print number of rows which indirectly means the number of messages
-        file_report.cell(200,10, txt=(f'Messages Sent {req_df.shape[0]}'),ln = 1, align = 'L')
-        #Word_Count contains of total words in one message. Sum of all words/ Total Messages will yield words per message
-        words_per_message = (np.sum(req_df['Word_Count']))/req_df.shape[0]
-        file_report.cell(200,10, txt=(f'Average Words per message {words_per_message}'),ln = 1, align = 'L')
-        #Word_Count contains of total words in one message.
-        total_words = np.sum(req_df['Word_Count'])
-        file_report.cell(200,10, txt=(f'Total Words Sent {total_words}'),ln = 1, align = 'L')
-        #media conists of media messages
-        media = media_messages_df[media_messages_df['Author'] == l[i]].shape[0]
-        file_report.cell(200,10, txt=(f'Media Messages Sent {media}'),ln = 1, align = 'L')
-        # emojis conists of total emojis
-        emojis = sum(req_df['emoji'].str.len())
-        file_report.cell(200,10, txt=(f'Emojis Sent {emojis}'),ln = 1, align = 'L')
-        #links consist of total links
-        links = sum(req_df["urlcount"])   
-        file_report.cell(200,10, txt=(f'Links Sent {links}'),ln = 1, align = 'L')
-        #numtels consist of total numtels
-        numtels = sum(req_df["numtelcount"])
-        file_report.cell(200,10, txt=(f'Numeri di telefono scambiati {numtels}'),ln = 1, align = 'L')
-        #emails consist of total emails
-        emails = sum(req_df["emailcount"])
-        file_report.cell(200,10, txt=(f'Email scambiate {emails}'),ln = 1, align = 'L')
-        #gps consist of total gps
-        gps = sum(req_df["gpscount"])
-        file_report.cell(200,10, txt=(f'Posizioni GPS scambiate {gps}'),ln = 1, align = 'L')
+        return l
 
-    file_report.add_page()
-    emoji_df = pd.DataFrame(emoji_dict, columns=['emoji', 'count'])
-    fig = px.pie(emoji_df, values='count', names='emoji')
-    fig.update_traces(textposition='inside', textinfo='percent+label')
-    fig.write_image("fig1.png")
-    file_report.cell(200,10, txt="  ",ln = 1, align = 'L')    
-    file_report.cell(200,10, txt="Percentuale emoji utilizzate",ln = 1, align = 'L')
-    file_report.image("fig1.png",w=180,h=100)
-    
-   
-    for i in range(len(l)):
-        dummy_df = messages_df[messages_df['Author'] == l[i]]
-        text = " ".join(review for review in dummy_df.Message)
-        stopwords = set(STOPWORDS)
-        #Generate a word cloud image
-        wordcloud = WordCloud(stopwords=stopwords, background_color="white").generate(text)
-        wordcloud.to_file("fig2.png")
-
-    file_report.cell(200,10, txt="  ",ln = 1, align = 'L')    
-    file_report.cell(200,10, txt="Cloud Word",ln = 1, align = 'L')
-    file_report.image("fig2.png",w=180,h=100)
-
- 
-    return l
-
-#main
 def main(arg):
-    
-    user=""
-    recived=""
-    platform=""
-    path=""
-
-    if ("-u" and "-f" and "-p") not in arg or len(arg)<7:
-        print("#####################################################################")
-        print(" ")
-        print("Usage: python rebuild_chat.py -p PLATFORM -u CHAT_OWNER -f FILE.ZIP")
-        print("")
-        print("!! Important !! ")
-        print("PLATFORM value are I for Ios and A for Android")
-        print("The file ZIP must contanined a folder with chat txt file and media. See test as example\n")
-        print("######################################################################")
-        sys.exit()
-    
-
-    for i in range(len(arg)):
-     
-        if arg[i] == '-p':
-            platform = arg[i+1]
         
-        elif arg[i] == "-u":
-            user = arg[i+1]
+        user=""
+        recived=""
+        platform=""
+        path=""
+
+        if ("-u" and "-f" and "-p") not in arg or len(arg)<7:
+            print("#####################################################################")
+            print(" ")
+            print("Usage: python rebuild_chat.py -p PLATFORM -u CHAT_OWNER -f FILE.ZIP")
+            print("")
+            print("!! Important !! ")
+            print("PLATFORM value are I for Ios and A for Android")
+            print("The file ZIP must contanined a folder with chat txt file and media. See test as example\n")
+            print("######################################################################")
+            sys.exit()
         
-        elif arg[i] == "-f":
-            path = arg[i+1]
 
-    print("Platform "+platform)
-    print("Chat Owner "+user)
-    print("File Zip path " + path)
+        for i in range(len(arg)):
+        
+            if arg[i] == '-p':
+                platform = arg[i+1]
+            
+            elif arg[i] == "-u":
+                user = arg[i+1]
+            
+            elif arg[i] == "-f":
+                path = arg[i+1]
 
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size = 15)
+        print("Platform "+platform)
+        print("Chat Owner "+user)
+        print("File Zip path " + path)
 
-    #hash=extract_chat("ios_test.zip")
-    hash=extract_chat(path)
-    pdf.cell(200, 10, txt = "hash zip contente la chat estratta:"+str(hash),ln = 1, align = 'L')
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size = 15)
 
-    cleaned_data=[]
+        #hash=extract_chat("ios_test.zip")
+        hash=extract_chat(path)
+        pdf.cell(200, 10, txt = "hash zip contente la chat estratta:"+str(hash),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
 
-    #platform="android"
-    #file_path = "chat_android.txt"
+        cleaned_data=[]
 
-
-    #platform="ios"
-
-    if(platform == "I"):
-        file_path = "./chat/_chat.txt"
-    else:
-        file_path = "./chat/chat.txt"
-
-    with open(file_path, mode='r', encoding="utf8") as f:
-        data = f.readlines()
+        #platform="android"
+        #file_path = "chat_android.txt"
 
 
-    if(platform == "I"):
-        user = data[0].split(":")[2].split("]")[1][1:]
-        cleaned_data=ios_chat(user, data)
-    else:
-        user="Pippo"  
-        cleaned_data=android_chat(user, data)
+        #platform="ios"
 
-    author=sentiment_analysis(cleaned_data, pdf)
+        if(platform == "I"):
+            file_path = "./chat/_chat.txt"
+        else:
+            file_path = "./chat/chat.txt"
 
-    for a in author:
-        if a != user:
-            recived=a
+        with open(file_path, mode='r', encoding="utf8") as f:
+            data = f.readlines()
 
 
-    makeHTML(user,recived, cleaned_data)
-    #sentiment_analysis(cleaned_data, pdf)
-    dayHTML(user,recived,cleaned_data)
+        if(platform == "I"):
+            user = data[0].split(":")[2].split("]")[1][1:]
+            cleaned_data=ios_chat(user, data)
+        else:
+            user="Pippo"  
+            cleaned_data=android_chat(user, data)
+
+        author=sentiment_analysis(cleaned_data, pdf)
+
+        for a in author:
+            if a != user:
+                recived=a
 
 
-    pdf.output("report.pdf", "F")
-    pdf.close()
-    id = str(uuid.uuid4())
-    #create folder for sentiment analysis output files
-    #move all files in the folder
-    dir_path="report_sentiment_analysis_"+id
-    Path(dir_path).mkdir(parents=True, exist_ok=True)
-    shutil.move("report.pdf", dir_path)
-    shutil.move("fig1.png", dir_path)
-    shutil.move("fig2.png", dir_path)
-    shutil.move("chat", dir_path)
-    shutil.move("day_by_day", dir_path)
-    shutil.move("html", dir_path)
-    gps_path="gps_info_"+id
-    Path(gps_path).mkdir(parents=True, exist_ok=True)
-    shutil.move("gps_list.json", gps_path)
-    shutil.move("GPS_ONLY_COORDS.json", gps_path)
-    shutil.move("gps_map.html", gps_path)
-    shutil.move(gps_path, dir_path)
-    shutil.move("url_list.json", dir_path)
-    shutil.move("email_list.json", dir_path)
-    shutil.move("whois_output.json", dir_path)
-    shutil.make_archive(dir_path, 'zip',dir_path) 
-    shutil.rmtree(dir_path)
-    print("#### Task Completed ####")
+        makeHTML(user,recived, cleaned_data)
+        #sentiment_analysis(cleaned_data, pdf)
+        dayHTML(user,recived,cleaned_data)
+
+
+        pdf.output("report.pdf")
+        #pdf.close()
+        id = str(uuid.uuid4())
+        #create folder for sentiment analysis output files
+        #move all files in the folder
+        dir_path="report_sentiment_analysis_"+id
+        Path(dir_path).mkdir(parents=True, exist_ok=True)
+        shutil.move("report.pdf", dir_path)
+        shutil.move("fig1.png", dir_path)
+        shutil.move("fig2.png", dir_path)
+        shutil.move("chat", dir_path)
+        shutil.move("day_by_day", dir_path)
+        shutil.move("html", dir_path)
+        gps_path="gps_info_"+id
+        Path(gps_path).mkdir(parents=True, exist_ok=True)
+        shutil.move("gps_list.json", gps_path)
+        shutil.move("GPS_ONLY_COORDS.json", gps_path)
+        shutil.move("gps_map.html", gps_path)
+        shutil.move(gps_path, dir_path)
+        shutil.move("url_list.json", dir_path)
+        shutil.move("email_list.json", dir_path)
+        shutil.move("whois_output.json", dir_path)
+        shutil.make_archive(dir_path, 'zip',dir_path) 
+        shutil.rmtree(dir_path)
+        print("#### Task Completed ####")
 
 
 if __name__ == "__main__":
-    
-    # Use only for test
-    # main(["Python3 script_gi4mp.py", "-p", "A","-u","Pippo","-f","android_test.zip"])
-    main(["Python3 script_gi4mp.py", "-p", "I","-u","Jack","-f","ios_test.zip"])
-    #main(sys.argv)
+        
+        # Use only for test
+        # main(["Python3 script_gi4mp.py", "-p", "A","-u","Pippo","-f","android_test.zip"])
+        main(["Python3 script_gi4mp.py", "-p", "I","-u","Jack","-f","ios_test.zip"])
+        #main(sys.argv)
