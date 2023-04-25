@@ -19,7 +19,6 @@ from url_analyzer import *
 from flask import Flask
 from flask_restx import Api, Namespace, Resource
 
-
 class chat_manager(Resource):
     #questa funzione servirà per estrarre il file zip contente la chat e ritorno l'hash del file zip
     def extract_chat(self, name):
@@ -36,8 +35,6 @@ class chat_manager(Resource):
         shutil.unpack_archive(name, "./chat")
 
         return md5_hash.hexdigest()    
-
-
 
 
     def ios_chat(self, user,data):
@@ -73,7 +70,6 @@ class chat_manager(Resource):
 
 
     def android_chat(self, user,data):
-        
             
         dataset = data [1:]
         cleaned_data = []
@@ -105,10 +101,6 @@ class chat_manager(Resource):
                 cleaned_data[-1][-1] = new
 
         return cleaned_data
-
-
-
-
 
 class html(Resource):
     def makeHTML(self, user,recived, cleaned_data):
@@ -183,10 +175,6 @@ class html(Resource):
                 
             else:
                 i.write(message_template.render(position=p,type=m[0], message=mess,time=m[2][0:5]))
-
-
-                
-
         i.write(end.render())
         i.close()
 
@@ -303,42 +291,85 @@ class sentiment(Resource):
             emojis = sum(df['emoji'].str.len())
             file_report.cell(200,10, txt="Numero emojis "+str(emojis),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
 
-            URLPATTERN = r'(https?://\S+)'
+            #search for urls
+            URL_PATTERN = r'(https?://\S+)'
             url_list = []
-            data= regex.findall(URLPATTERN, df.Message.to_string())
+            data= regex.findall(URL_PATTERN, df.Message.to_string())
             for url in data:
                 url_list.append(url)
-            #print(url_list)
             with open('url_list.json', "w") as f:
                     f.write(json.dumps(url_list, default=str, indent=4))
-            df['urlcount'] = df.Message.apply(lambda x: regex.findall(URLPATTERN, x)).str.len()
+            df['urlcount'] = df.Message.apply(lambda x: regex.findall(URL_PATTERN, x)).str.len()
             links = np.sum(df.urlcount)
             file_report.cell(200,10, txt="Numero link scambiati "+str(links),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
             url_analyzer.url_whois()
-            
+
+            #search for social network links
+            SOCIAL_PATTERN = r'(?:(?:http|https):\/\/)?(?:www.)?(?:instagram.com|twitter.com|facebook.com|tiktok.com)\/([A-Za-z0-9-_]+)'
+            social_list = []
+            data= regex.findall(SOCIAL_PATTERN, df.Message.to_string())
+            for social in data:
+                social_list.append(social)
+            with open('social_list.json', "w") as f:
+                    f.write(json.dumps(social_list, default=str, indent=4))
+            df['socialcount'] = df.Message.apply(lambda x: regex.findall(SOCIAL_PATTERN, x)).str.len()
+            socials = np.sum(df.socialcount)
+            file_report.cell(200,10, txt="Numero link social network scambiati "+str(socials),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+
+            #search for videocall links
+            VIDEOCALL_PATTERN = r'(?:(?:http|https):\/\/)?(?:www.)?(?:meet.google.com|zoom.us|teams.microsoft.com)\/([A-Za-z0-9-_]+)'
+            videocall_list = []
+            data= regex.findall(VIDEOCALL_PATTERN, df.Message.to_string())
+            for videocall in data:
+                videocall_list.append(videocall)
+            with open('videocall_list.json', "w") as f:
+                    f.write(json.dumps(videocall_list, default=str, indent=4))
+            df['videocallcount'] = df.Message.apply(lambda x: regex.findall(VIDEOCALL_PATTERN, x)).str.len()
+            videocalls = np.sum(df.videocallcount)
+            file_report.cell(200,10, txt="Numero link videochiamate scambiati "+str(videocalls),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+
+            SHOPPING_PATTERN = r'(?:(?:http|https):\/\/)?(?:www.)?(?:amazon.it|ebay.it|subito.it|kijiji.it|aliexpress.com)\/([A-Za-z0-9-_]+)'
+            shopping_list = []
+            data= regex.findall(SHOPPING_PATTERN, df.Message.to_string())
+            for shopping in data:
+                shopping_list.append(shopping)
+            with open('shopping_list.json', "w") as f:
+                    f.write(json.dumps(shopping_list, default=str, indent=4))
+            df['shoppingcount'] = df.Message.apply(lambda x: regex.findall(SHOPPING_PATTERN, x)).str.len()
+            shoppings = np.sum(df.shoppingcount)
+            file_report.cell(200,10, txt="Numero link shopping scambiati "+str(shoppings),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+
+            #search for italian fiscal codes
+            CODICEFISCALEPATTERN = r'([A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z])'
+            df['codicefiscalecount'] = df.Message.apply(lambda x: regex.findall(CODICEFISCALEPATTERN, x)).str.len()
+            codicefiscale = np.sum(df.codicefiscalecount)
+            file_report.cell(200,10, txt="Numero codici fiscali scambiati "+str(codicefiscale),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
+
+
+            #search for italian phone numbers
             NUMTELPATTERN = r'(\+39\d{9,10})'
             df['numtelcount'] = df.Message.apply(lambda x: regex.findall(NUMTELPATTERN, x)).str.len()
             numtels = np.sum(df.numtelcount)
             file_report.cell(200,10, txt="Numero numeri di telefono scambiati "+str(numtels),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
 
+            #search for emails
             EMAILPATTERN = r'(\S+@\S+)'
             email_list = []
             data= regex.findall(EMAILPATTERN, df.Message.to_string())
             for email in data:
                 email_list.append(email)
-            #print(email_list)
             with open('email_list.json', "w") as f:
                     f.write(json.dumps(email_list, default=str, indent=4))
             df['emailcount'] = df.Message.apply(lambda x: regex.findall(EMAILPATTERN, x)).str.len()
             emails = np.sum(df.emailcount)
             file_report.cell(200,10, txt="Numero email scambiate "+str(emails),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
 
+            #search for gps positions
             GPSPATTERN= r'https?://maps\.google\.com/\?q=\d+\.\d+,\d+\.\d+'
             gps_list = []
             data= regex.findall(GPSPATTERN, df.Message.to_string())
             for gps in data:
                 gps_list.append(gps)
-            #print(gps_list)
             with open('gps_list.json', "w") as f:
                     f.write(json.dumps(gps_list, default=str, indent=4))
             df['gpscount'] = df.Message.apply(lambda x: regex.findall(GPSPATTERN, x)).str.len()
@@ -346,7 +377,7 @@ class sentiment(Resource):
             file_report.cell(200,10, txt="Numero posizioni GPS scambiate "+str(gps),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
             gps_analysis.gps_map()
 
-        
+
             media_messages_df = df[df["Message"].str.contains('<allegato: ')]
             messages_df = df.drop(media_messages_df.index)
             messages_df['Letter_Count'] = messages_df['Message'].apply(lambda s : len(s))
@@ -374,8 +405,7 @@ class sentiment(Resource):
             emoji_dict = dict(Counter(total_emojis_list))
             emoji_dict = sorted(emoji_dict.items(), key=lambda x: x[1], reverse=True)
             
-            #for i in emoji_dict:
-            #    print(i)
+
             
             l = df.Author.unique()
             for i in range(len(l)):
