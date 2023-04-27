@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Rebuild Whatsapp Chat</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h1>Rebuild Whatsapp Chat</h1>
+        <form id="uploadForm" class="mt-4" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="platform">Platform:</label>
+                <select id="platform" name="platform" class="form-control">
+                    <option value="I">iOS</option>
+                    <option value="A">Android</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="user">User:</label>
+                <input type="text" id="user" name="user" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="file">File:</label>
+                <input type="file" id="file" name="file" class="form-control-file">
+            </div>
+            <button type="submit" class="btn btn-primary">Run</button>
+            
+        </form>
+    </div>
+    <div class="container mt-5">
+        <button id="downloadBtn" class="btn btn-secondary">Download</button>
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const platform = document.getElementById('platform').value;
+            const user = document.getElementById('user').value;
+            const fileInput = document.getElementById('file');
+            const file = fileInput.files[0]; 
+            const formData = new FormData(); 
+            formData.append('platform', platform);
+            formData.append('user', user);
+            formData.append('file', file);
+            link= `http://127.0.0.1:5000`
+            const url = link + `/rebuild_wchat/run/${platform}&${user}&${file}`;
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Success:', data);
+                } else {
+                    throw new Error('Error: ' + response.status);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        });
+    </script>
+<script>
+    const downloadBtn = document.getElementById('downloadBtn');
+    link= `http://127.0.0.1:5000`
+    downloadBtn.addEventListener('click', async () => {
+      const url = link + `/rebuild_wchat/download`;
+      window.open(url);
+    });
+  </script>
+
+</body>
+
+</html>
