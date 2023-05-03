@@ -368,14 +368,15 @@ class sentiment(Resource):
             GPSPATTERN= r'https?://maps\.google\.com/\?q=\d+\.\d+,\d+\.\d+'
             gps_list = []
             data= regex.findall(GPSPATTERN, df.Message.to_string())
-            for gps in data:
-                gps_list.append(gps)
-            with open('gps_list.json', "w") as f:
-                    f.write(json.dumps(gps_list, default=str, indent=4))
             df['gpscount'] = df.Message.apply(lambda x: regex.findall(GPSPATTERN, x)).str.len()
             gps = np.sum(df.gpscount)
             file_report.cell(200,10, txt="Numero posizioni GPS scambiate "+str(gps),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
-            gps_analysis.gps_map()
+            for gps in data:
+                gps_list.append(gps)
+            if(gps_list):
+                with open('gps_list.json', "w") as f:
+                        f.write(json.dumps(gps_list, default=str, indent=4))
+                gps_analysis.gps_map()
 
 
             media_messages_df = df[df["Message"].str.contains('<allegato: ')]

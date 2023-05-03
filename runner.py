@@ -97,14 +97,14 @@ class Run(Resource):
                 user = data[0].split(":")[2].split("]")[1][1:]
                 cleaned_data=chat_manager().ios_chat(user, data)
             else:
-                user="Pippo"  
+                #user="Pippo"  
                 cleaned_data=chat_manager().android_chat(user, data)
 
             author=sentiment().sentiment_analysis(cleaned_data, pdf)
-
+            #recived=""
             for a in author:
-                if a != user:
-                    recived=a
+                 if a != user:
+                     recived=a
 
 
             html().makeHTML(user,recived, cleaned_data)
@@ -124,12 +124,13 @@ class Run(Resource):
             shutil.move("chat", dir_path)
             shutil.move("day_by_day", dir_path)
             shutil.move("html", dir_path)
-            gps_path="gps_info_"+id
-            Path(gps_path).mkdir(parents=True, exist_ok=True)
-            shutil.move("gps_list.json", gps_path)
-            shutil.move("GPS_ONLY_COORDS.json", gps_path)
-            shutil.move("gps_map.html", gps_path)
-            shutil.move(gps_path, dir_path)
+            if os.path.exists("GPS_ONLY_COORDS.json"):
+                gps_path="gps_info_"+id
+                Path(gps_path).mkdir(parents=True, exist_ok=True)
+                shutil.move("gps_list.json", gps_path)
+                shutil.move("GPS_ONLY_COORDS.json", gps_path)
+                shutil.move("gps_map.html", gps_path)
+                shutil.move(gps_path, dir_path)
             link_path="link_info_"+id
             Path(link_path).mkdir(parents=True, exist_ok=True)
             shutil.move("url_list.json", link_path)
