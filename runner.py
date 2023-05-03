@@ -4,7 +4,7 @@ from pathlib import Path
 from fpdf import FPDF
 from flask_restx import Resource, Namespace
 from rebuild_chat import *
-from flask import request, send_file
+from flask import request, send_file, render_template
 import glob 
 import os
 
