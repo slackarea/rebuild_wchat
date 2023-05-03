@@ -371,8 +371,9 @@ class sentiment(Resource):
             df['gpscount'] = df.Message.apply(lambda x: regex.findall(GPSPATTERN, x)).str.len()
             gps = np.sum(df.gpscount)
             file_report.cell(200,10, txt="Numero posizioni GPS scambiate "+str(gps),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
-            for gps in data:
-                gps_list.append(gps)
+            for el in data:
+                gps_list.append(el)
+            #print (gps_list)
             if(gps_list):
                 with open('gps_list.json', "w") as f:
                         f.write(json.dumps(gps_list, default=str, indent=4))
