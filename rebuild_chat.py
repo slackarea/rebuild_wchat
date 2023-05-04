@@ -106,7 +106,6 @@ class html(Resource):
     def makeHTML(self, user,recived, cleaned_data):
         
         folder="./html/"
-        
         if os.path.exists(folder):
             shutil.rmtree(folder)
 
@@ -119,7 +118,11 @@ class html(Resource):
         
         if os.path.exists(file_html_path):
             os.remove(file_html_path) 
-        
+        if " " in user:
+            first_name, last_name = user.split(" ", 1)
+        else:
+            first_name, last_name = user, ""
+
         i = open(file_html_path, mode='x', encoding="utf8")
         file_loader = FileSystemLoader("templates")
     
@@ -130,19 +133,19 @@ class html(Resource):
         message_template=env.get_template("message_template.txt")
         media_template=env.get_template("media_template.txt")
 
-        i.write(start.render(name=user))
+        #i.write(start.render(name=user))
+        i.write(start.render(first_name=first_name, last_name=last_name, full_name=user))
+
 
         message_date = ""
         p=""
 
         for m in cleaned_data:
             mess = m[4]
-
             if (m[0]=="sent"):
-                p="end"
-            else:
                 p="start"
-
+            else:
+                p="end"
             
             if m[1] != message_date:
                 message_date = m[1]
@@ -186,7 +189,10 @@ class html(Resource):
         #utilizzato per capire quando chiudere la chat del giorno
         message_date = ""
         i=None
-
+        if " " in user:
+            first_name, last_name = user.split(" ", 1)
+        else:
+            first_name, last_name = user, ""
         file_loader = FileSystemLoader("templates")
         env = Environment(loader=file_loader)
         start=env.get_template("start.txt")
@@ -209,7 +215,7 @@ class html(Resource):
         
         i = open(dayPath+str(message_date).replace("/","-")+".html", mode='x', encoding="utf8")
         indexHTML.write("<a href=\""+str(message_date).replace("/","-")+".html\">"+message_date+"</a><br>")
-        i.write(start.render(name=user))
+        i.write(start.render(first_name=first_name, last_name=last_name, full_name=user))
         i.write((day_template.render(day=message_date)))
 
             
@@ -217,10 +223,9 @@ class html(Resource):
             mess = m[4]
 
             if (m[0]=="sent"):
-                p="end"
-            else:
                 p="start"
-
+            else:
+                p="end"
             
             if m[1] != message_date:
                 message_date = m[1]
@@ -229,7 +234,7 @@ class html(Resource):
                 i.close()
                 i = open(dayPath+d+".html", mode='x', encoding="utf8")
                 indexHTML.write("<a href=\""+d+".html"+"\">"+m[1]+"</a><br>")
-                i.write(start.render(name=user))
+                i.write(start.render(first_name=first_name, last_name=last_name, full_name=user))
                 i.write((day_template.render(day=m[1])))
 
         
