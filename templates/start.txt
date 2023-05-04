@@ -30,7 +30,7 @@
 								<div class="chat-head">
 										<img src="https://avatars2.githubusercontent.com/u/398893?s=128">
 										<div class="chat-name">
-												<h1 class="font-name">{{name}}</h1>
+												<h1 class="font-name">{{first_name}} {{last_name}}</h1>
 										</div>
 									<i class="fa fa-search fa-lg" aria-hidden="true"></i>
 									<i class="fa fa-paperclip fa-lg" aria-hidden="true"></i>
