@@ -8,6 +8,7 @@ from flask import request, send_file, render_template
 import glob 
 import os
 
+
 api= Namespace('rebuild_wchat')
 
 #route for run the script
@@ -106,7 +107,8 @@ class Run(Resource):
                  if a != user:
                      recived=a
 
-
+            
+           
             html().makeHTML(user,recived, cleaned_data)
             #sentiment_analysis(cleaned_data, pdf)
             html().dayHTML(user,recived,cleaned_data)

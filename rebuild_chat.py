@@ -19,6 +19,7 @@ from url_analyzer import *
 from flask import Flask
 from flask_restx import Api, Namespace, Resource
 
+
 class chat_manager(Resource):
     #questa funzione servirà per estrarre il file zip contente la chat e ritorno l'hash del file zip
     def extract_chat(self, name):
@@ -278,6 +279,7 @@ class html(Resource):
 
 class sentiment(Resource):
     def sentiment_analysis(self,cleaned_data,file_report):
+    
             df = pd.DataFrame(cleaned_data, columns=["Type","Date", 'Time', 'Author', 'Message'])
             df['Date'] = pd.to_datetime(df['Date'])
             file_report.cell(200, 10, txt = "Autori dei messaggi scambiati: "+str(df.Author.unique()),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
@@ -384,6 +386,7 @@ class sentiment(Resource):
                         f.write(json.dumps(gps_list, default=str, indent=4))
                 gps_analysis.gps_map()
 
+            
 
             media_messages_df = df[df["Message"].str.contains('<allegato: ')]
             messages_df = df.drop(media_messages_df.index)
