@@ -4,12 +4,14 @@ from runner import *
 from runner import api as rebuild_wchat
 
 app = Flask(__name__,template_folder='templates')
+
+@app.route('/')
+def home():
+   return render_template('home.html')
+
 api = Api(app)
 api.add_namespace(rebuild_wchat)
 
-@app.route('/home')
-def home():
-   return render_template('home.html')
 
 if __name__ == "__main__":
 
