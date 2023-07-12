@@ -7,6 +7,7 @@ from rebuild_chat import *
 from flask import request, send_file, render_template
 import glob 
 import os
+from vcf import *
 
 
 api= Namespace('rebuild_wchat')
@@ -74,7 +75,7 @@ class Run(Resource):
             #hash=extract_chat("ios_test.zip")
             #print (arg)
             hash=chat_manager().extract_chat(str(file_path))
-            
+           
             #write hash in pdf
             pdf.cell(200, 10, txt = "hash zip contente la chat estratta:"+str(hash),new_x=XPos.LMARGIN, new_y=YPos.NEXT, align = 'L')
 
@@ -113,7 +114,8 @@ class Run(Resource):
             #sentiment_analysis(cleaned_data, pdf)
             html().dayHTML(user,recived,cleaned_data)
 
-
+            vcf.get_vcf_files(self, uploaded_file.filename)
+            vcf.get_vcf_data(self, uploaded_file.filename)
             pdf.output("report.pdf")
             id = str(uuid.uuid4())
             #create folder for sentiment analysis output files
@@ -126,6 +128,8 @@ class Run(Resource):
             shutil.move("chat", dir_path)
             shutil.move("day_by_day", dir_path)
             shutil.move("html", dir_path)
+            shutil.move("vcf_data.json", dir_path)
+            shutil.move("vcf_files.json", dir_path)
             if os.path.exists("GPS_ONLY_COORDS.json"):
                 gps_path="gps_info_"+id
                 Path(gps_path).mkdir(parents=True, exist_ok=True)
