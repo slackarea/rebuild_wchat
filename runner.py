@@ -16,44 +16,7 @@ api= Namespace('rebuild_wchat')
 @api.route('/run/<platform>&<user>&<file_path>', methods=['POST'])
 class Run(Resource):
     def post(self, platform, user, file_path):
-            #arg = request.args
-            #test for iOS
-            #arg = ["-p","I","-u","Pippo","-f","ios_test.zip"]
-            #test for android
-            #arg = ["-p","A","-u","Pippo","-f","android_test.zip"]
-            # user=""
-            # #recived=""
-            # platform=""
-            # path=""
-
-            # if ("-u" and "-f" and "-p") not in arg or len(arg)<7:
-            #     print("#####################################################################")
-            #     print(" ")
-            #     print("Usage: python rebuild_chat.py -p PLATFORM -u CHAT_OWNER -f FILE.ZIP")
-            #     print("")
-            #     print("!! Important !! ")
-            #     print("PLATFORM value are I for Ios and A for Android")
-            #     print("The file ZIP must contanined a folder with chat txt file and media. See test as example\n")
-            #     print("######################################################################")
-            #     #sys.exit()
             
-
-            # for i in range(len(arg)):
-            
-            #     if arg[i] == '-p':
-            #         platform = arg[i+1]
-                
-            #     elif arg[i] == "-u":
-            #         user = arg[i+1]
-                
-            #     elif arg[i] == "-f":
-            #         path = arg[i+1]
-
-            # print("Platform "+ str(platform))
-            # print("Chat Owner "+ str(user))
-            # print("File Zip path " + str(path))
-
-            #check if file is uploaded
             if 'file' not in request.files:
                 return {'message': 'No file uploaded'}, 400
 
@@ -72,8 +35,6 @@ class Run(Resource):
             pdf.add_page()
             pdf.set_font("Arial", size = 15)
 
-            #hash=extract_chat("ios_test.zip")
-            #print (arg)
             hash=chat_manager().extract_chat(str(file_path))
            
             #write hash in pdf
@@ -81,10 +42,6 @@ class Run(Resource):
 
             cleaned_data=[]
 
-            #platform="android"
-            #file_path = "chat_android.txt"
-
-            #platform="ios"
 
             if(platform == "I"):
                 file_path = "./chat/_chat.txt"
