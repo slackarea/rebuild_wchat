@@ -154,7 +154,7 @@ class html(Resource):
             
             #posizione conterrà l'inizio della stringa "<allegato:"
             attacched=-1
-            position_ios = m[4].find("<allegato:")
+            position_ios = m[4].find("<allegato:") or m[4].find("<attached:")
             position_android= m[4].find("(file allegato)")
             
             if position_ios >-1:
