@@ -35,42 +35,51 @@
 
     <script>
         const form = document.getElementById('uploadForm');
+        const downloadBtn = document.getElementById('downloadBtn');
+        
         form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const platform = document.getElementById('platform').value;
-            const user = document.getElementById('user').value;
-            const fileInput = document.getElementById('file');
-            const file = fileInput.files[0]; 
-            const formData = new FormData(); 
-            formData.append('platform', platform);
-            formData.append('user', user);
-            formData.append('file', file);
-            link= `http://127.0.0.1:5000`
-            const url = link + `/rebuild_wchat/run/${platform}&${user}&${file}`;
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    body: formData
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('Success:', data);
-                } else {
-                    throw new Error('Error: ' + response.status);
-                }
-            } catch (error) {
-                console.error(error);
-            }
+    e.preventDefault();
+
+    const platform = document.getElementById('platform').value;
+    const user = document.getElementById('user').value;
+    const fileInput = document.getElementById('file');
+    const file = fileInput.files[0]; 
+    const formData = new FormData(); 
+    formData.append('platform', platform);
+    formData.append('user', user);
+    formData.append('file', file);
+    
+
+    const port = '{{ port }}'; 
+    const link = `http://127.0.0.1:${port}`;
+    const url = `${link}/rebuild_wchat/run/${platform}&${user}&${file}`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Success:', data);
+        } else {
+            throw new Error('Error: ' + response.status);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+
         });
     </script>
-<script>
-    const downloadBtn = document.getElementById('downloadBtn');
-    link= `http://127.0.0.1:5000`
-    downloadBtn.addEventListener('click', async () => {
-      const url = link + `/rebuild_wchat/download`;
-      window.open(url);
-    });
-  </script>
+    <script>
+        downloadBtn.addEventListener('click', async () => {
+            const port = "{{ port }}";
+            const link = `http://127.0.0.1:${port}`;
+            const url = `${link}/rebuild_wchat/download`;
+            window.open(url);
+        });
+    </script>
+    
 
 </body>
 
