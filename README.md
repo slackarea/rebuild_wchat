@@ -39,7 +39,7 @@ docker build --pull --rm -f "Dockerfile" -t rebuildwchat:latest "."
 Use the following command:
 
 ```
-docker compose -f "docker-compose.yml" up -d --build
+docker run --rm -e HOST_PORT=<port> -p <HOST_PORT>:<OTHER_PORT> rebuildwchat
 ```
 
 ## Contributing
