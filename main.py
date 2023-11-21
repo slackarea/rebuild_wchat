@@ -17,4 +17,4 @@ api = Api(app)
 api.add_namespace(rebuild_wchat)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()

@@ -53,7 +53,7 @@
     // const port = '{{ port }}'; 
     //const link = `http://127.0.0.1:${port}`;
     const link = window.location.protocol + "//" + window.location.host;
-    const url = link + "/rebuild_wchat/run/" + platform + "&" + user + "&" + file;
+    const url = link + "/rebuild_wchat/run/" + platform + "&" + user + "&" + `${file}`;
 
     try {
         const response = await fetch(url, {
