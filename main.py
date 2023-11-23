@@ -6,7 +6,7 @@ from runner import api as rebuild_wchat
 
 app = Flask(__name__, template_folder='templates')
 
-host_port = os.environ.get('HOST_PORT')
+host_port = os.environ.get('FLASK_RUN_PORT')
 
 @app.route('/')
 def home():

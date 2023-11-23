@@ -9,7 +9,7 @@ matplotlib==3.7.1
 numpy==1.24.2
 packaging==23.0
 pandas==1.5.3
-Pillow==9.4.0
+Pillow==10.0.1
 plotly==5.13.1
 pyparsing==3.0.9
 python-dateutil==2.8.2
@@ -24,5 +24,6 @@ folium==0.14.0
 python-whois==0.7.3
 flask>=2.2.5
 flask_restx==1.0.3
+flask-cors>=4.0.0
 werkzeug==2.2.3
 fpdf2==2.7.3
