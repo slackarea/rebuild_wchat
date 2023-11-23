@@ -48,12 +48,14 @@
     formData.append('platform', platform);
     formData.append('user', user);
     formData.append('file', file);
+    console.log(file);
     
 
     // const port = '{{ port }}'; 
     //const link = `http://127.0.0.1:${port}`;
     const link = window.location.protocol + "//" + window.location.host;
     const url = link + "/rebuild_wchat/run/" + platform + "&" + user + "&" + file;
+    console.log(url);
 
     try {
         const response = await fetch(url, {
@@ -78,6 +80,7 @@
             // const link = `http://127.0.0.1:${port}`;
             const link = window.location.protocol + "//" + window.location.host;
             const url = link + "/rebuild_wchat/download";
+            console.log(url);
             window.open(url);
         });
     </script>

@@ -6,11 +6,11 @@ from runner import api as rebuild_wchat
 
 app = Flask(__name__, template_folder='templates')
 
-host_port = os.environ.get('FLASK_RUN_PORT')
+# host_port = os.environ.get('FLASK_RUN_PORT')
 
 @app.route('/')
 def home():
-    return render_template('home.html', port=host_port)
+    return render_template('home.html')
 
 
 api = Api(app)
