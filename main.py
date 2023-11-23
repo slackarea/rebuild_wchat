@@ -12,9 +12,16 @@ app = Flask(__name__, template_folder='templates')
 def home():
     return render_template('home.html')
 
+@app.errorhandler(500)
+def internal_error(error):
+    return "500 error"
+
+@app.errorhandler(404)
+def not_found(error):
+    return "404 error",404
 
 api = Api(app)
 api.add_namespace(rebuild_wchat)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
