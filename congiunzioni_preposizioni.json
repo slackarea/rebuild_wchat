@@ -70,6 +70,19 @@
         "sugli",
         "sui",
         "sulle"
+    ],
+    "articoli":
+    [
+        "il",
+        "lo",
+        "la",
+        "i",
+        "gli",
+        "le",
+        "un",
+        "uno",
+        "una",
+        "un'",
+        "del"
     ]
-
 }

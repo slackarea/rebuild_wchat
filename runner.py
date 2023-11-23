@@ -33,6 +33,7 @@ class Run(Resource):
 
             pdf = FPDF()
             pdf.add_page()
+            pdf.add_font('Arial', '', 'arial.ttf', uni=True)
             pdf.set_font("Arial", size = 15)
 
             hash=chat_manager().extract_chat(str(file_path))

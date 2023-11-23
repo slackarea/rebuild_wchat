@@ -397,11 +397,12 @@ class sentiment(Resource):
                 data = json.load(f)
             cong= set(data['congiunzioni'])
             prep= set(data['preposizioni'])
+            articles= set(['articoli'])
             def word_count(text):
                 words= text.split()
                 c= 0
                 for word in words:
-                    if word not in cong and word not in prep:
+                    if word not in cong and word not in prep and word not in articles:
                         c+=1
                 return c
             messages_df['Word_Count'] = messages_df['Message'].apply(word_count)
