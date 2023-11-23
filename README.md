@@ -39,8 +39,15 @@ docker build --pull --rm -f "Dockerfile" -t rebuildwchat:latest "."
 Use the following command:
 
 ```
-docker run --rm -e HOST_PORT=<port> -p <HOST_PORT>:<OTHER_PORT> rebuildwchat
+docker run --rm -p <HOST_PORT>:<OTHER_PORT> rebuildwchat
 ```
+
+use this one if you need to change default 5000 port in Flask
+
+```
+docker run --rm -e FLASK_HOST_PORT=<port> -p <HOST_PORT>:<OTHER_PORT> rebuildwchat
+```
+
 
 ## Contributing
 
