@@ -10,6 +10,8 @@ import emoji
 from collections import Counter
 import plotly.express as px
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
+# from nltk.corpus import stopwords
+# from nltk.stem import PorterStemmer
 import matplotlib.pyplot as plt
 from pathlib import Path
 import json
@@ -111,7 +113,7 @@ class html(Resource):
             shutil.rmtree(folder)
 
         os.mkdir(folder)
-        shutil.copyfile("style.css","html/style.css")
+        shutil.copyfile("css/style.css","html/style.css")
         shutil.copytree("./libs","./html/libs")
 
 
@@ -154,7 +156,7 @@ class html(Resource):
             
             #posizione conterrà l'inizio della stringa "<allegato:"
             attacched=-1
-            position_ios = m[4].find("<allegato:") or m[4].find("<attached:")
+            position_ios = m[4].find("<allegato:")
             position_android= m[4].find("(file allegato)")
             
             if position_ios >-1:
@@ -206,7 +208,7 @@ class html(Resource):
             shutil.rmtree(dayPath)
 
         os.mkdir(dayPath)
-        shutil.copyfile("style.css","day_by_day/style.css")
+        shutil.copyfile("css/style.css","day_by_day/style.css")
         shutil.copytree("./libs","./day_by_day/libs")
 
         indexHTML = open(dayPath+"index.html",mode='x', encoding="utf8")
@@ -464,6 +466,7 @@ class sentiment(Resource):
             for i in range(len(l)):
                 dummy_df = messages_df[messages_df['Author'] == l[i]]
                 text = " ".join(review for review in dummy_df.Message)
+                #stopwords = stopwords.words('italian')
                 stopwords = set(STOPWORDS)
                 #Generate a word cloud image
                 wordcloud = WordCloud(stopwords=stopwords, background_color="white").generate(text)
